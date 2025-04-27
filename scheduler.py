@@ -12,7 +12,7 @@ from notification import show_notification
 # 스케줄러 실행 루프를 제어하기 위한 이벤트
 stop_run_continuously = threading.Event()
 
-def run_alarm(alarm: Alarm, job: schedule.Job):
+def run_alarm(alarm: Alarm):
     """알람이 울릴 때 실행될 함수"""
     repeat_str = alarm.get_repeat_str() if alarm.selected_days else "One-time"
     logging.info(f"알람 실행: {alarm.title} ({alarm.time_str}) - 반복: {repeat_str}")
