@@ -84,6 +84,25 @@ class AlarmApp(QWidget):
                 border: 1px solid #9fdf9f; /* 조금 더 진한 녹색 테두리 */
                 font-weight: bold;
             }
+            /* --- Save Alarm 버튼 스타일 추가 --- */
+            QPushButton#saveButton {
+                background-color: #3498db; /* 파란색 배경 */
+                color: white; /* 흰색 텍스트 */
+                border: 1px solid #2980b9;
+                font-weight: bold;
+            }
+            QPushButton#saveButton:hover {
+                background-color: #2980b9; /* 조금 더 진한 파랑 */
+            }
+            QPushButton#saveButton:pressed {
+                background-color: #1f618d; /* 더 진한 파랑 */
+            }
+            QPushButton#saveButton:disabled { /* 비활성화 시 스타일 */
+                 background-color: #a9cce3;
+                 border-color: #a9cce3;
+                 color: #eaf2f8;
+            }
+            /* --- Save Alarm 버튼 스타일 끝 --- */
         """)
 
         main_layout = QVBoxLayout(self)
@@ -142,6 +161,7 @@ class AlarmApp(QWidget):
         # 저장/취소 버튼
         button_layout = QHBoxLayout()
         self.save_button = QPushButton("Save Alarm")
+        self.save_button.setObjectName("saveButton")
         self.save_button.clicked.connect(self.save_alarm)
         self.cancel_button = QPushButton("Cancel Edit")
         self.cancel_button.clicked.connect(self.cancel_edit)
