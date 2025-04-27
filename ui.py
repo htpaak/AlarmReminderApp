@@ -1,0 +1,367 @@
+import sys
+import logging
+from typing import List, Callable, Optional
+from PyQt5.QtWidgets import (
+    QApplication, QWidget, QVBoxLayout, QHBoxLayout, QFormLayout, 
+    QLabel, QLineEdit, QComboBox, QPushButton, QListWidget, 
+    QMessageBox, QListWidgetItem, QFrame, QSizePolicy
+)
+from PyQt5.QtCore import Qt, pyqtSignal, QSize
+from PyQt5.QtGui import QColor, QFont
+
+from alarm import Alarm, RepeatSetting
+
+class AlarmApp(QWidget):
+    # 알람 목록 변경 시 메인 로직에 알리기 위한 시그널
+    alarms_updated = pyqtSignal(list)
+    alarm_deleted = pyqtSignal(str) # 삭제된 알람 ID 전달
+
+    def __init__(self, alarms: List[Alarm]):
+        super().__init__()
+        self.alarms = alarms
+        self.selected_alarm: Optional[Alarm] = None
+        self.edit_mode = False
+
+        self.initUI()
+        self.update_alarm_listwidget()
+
+    def initUI(self):
+        self.setWindowTitle("Alarm/Reminder App")
+        self.setGeometry(300, 300, 550, 500) # x, y, width, height
+        self.setStyleSheet("""
+            QWidget { 
+                background-color: #f0f0f0; 
+                font-family: Helvetica; 
+                font-size: 10pt; 
+            }
+            QLabel { background-color: transparent; }
+            QLineEdit, QComboBox { 
+                padding: 5px; 
+                border: 1px solid #c0c0c0; 
+                border-radius: 3px; 
+                background-color: white;
+            }
+            QPushButton { 
+                padding: 6px 10px; 
+                border: 1px solid #b0b0b0; 
+                border-radius: 3px; 
+                background-color: #e0e0e0; 
+            }
+            QPushButton:hover { background-color: #d0d0d0; }
+            QPushButton:pressed { background-color: #c0c0c0; }
+            QPushButton:disabled { background-color: #f5f5f5; color: #a0a0a0; }
+            QListWidget { 
+                border: 1px solid #c0c0c0; 
+                border-radius: 3px; 
+                background-color: white;
+                font-family: Consolas; /* 고정폭 폰트 */
+                font-size: 10pt;
+            }
+            QListWidget::item:selected { background-color: #d0e4f8; color: black; }
+            QFrame#formFrame, QFrame#listFrame { /* Frame 구분선 */
+                border: 1px solid #d0d0d0;
+                border-radius: 5px;
+                padding: 10px;
+                margin-bottom: 10px; /* 프레임 간 간격 */
+            }
+            QLabel#frameTitle { /* 프레임 제목 스타일 */
+                font-weight: bold;
+                font-size: 11pt;
+                margin-bottom: 5px;
+                color: #333;
+            }
+        """)
+
+        main_layout = QVBoxLayout(self)
+        main_layout.setContentsMargins(15, 15, 15, 15) # 전체 여백
+
+        # --- 알람 추가/수정 섹션 --- 
+        form_frame = QFrame(self)
+        form_frame.setObjectName("formFrame")
+        form_layout_wrapper = QVBoxLayout(form_frame) # 제목과 폼 레이아웃을 포함할 래퍼
+        
+        self.form_title_label = QLabel("Add Alarm") # 동적으로 변경될 제목
+        self.form_title_label.setObjectName("frameTitle")
+        form_layout_wrapper.addWidget(self.form_title_label)
+        
+        form_layout = QFormLayout()
+        form_layout.setContentsMargins(0, 5, 0, 0) # 폼 내부 여백 (상단만)
+        form_layout.setLabelAlignment(Qt.AlignLeft)
+        form_layout.setHorizontalSpacing(10)
+        form_layout.setVerticalSpacing(8)
+
+        self.title_edit = QLineEdit()
+        form_layout.addRow("Title:", self.title_edit)
+
+        # 시간 선택
+        time_layout = QHBoxLayout()
+        hours = [f"{h:02d}" for h in range(24)]
+        minutes = [f"{m:02d}" for m in range(60)] # 1분 단위
+        self.hour_combo = QComboBox()
+        self.hour_combo.addItems(hours)
+        self.hour_combo.setCurrentText("07")
+        self.minute_combo = QComboBox()
+        self.minute_combo.addItems(minutes)
+        self.minute_combo.setCurrentText("00")
+        time_layout.addWidget(self.hour_combo)
+        time_layout.addWidget(QLabel(":"))
+        time_layout.addWidget(self.minute_combo)
+        time_layout.addStretch(1)
+        form_layout.addRow("Time:", time_layout)
+
+        # 반복 설정
+        self.repeat_combo = QComboBox()
+        repeat_options = [setting.value for setting in RepeatSetting]
+        self.repeat_combo.addItems(repeat_options)
+        form_layout.addRow("Repeat:", self.repeat_combo)
+        
+        form_layout_wrapper.addLayout(form_layout)
+
+        # 저장/취소 버튼
+        button_layout = QHBoxLayout()
+        self.save_button = QPushButton("Save Alarm")
+        self.save_button.clicked.connect(self.save_alarm)
+        self.cancel_button = QPushButton("Cancel Edit")
+        self.cancel_button.clicked.connect(self.cancel_edit)
+        self.cancel_button.setVisible(False) # 처음엔 숨김
+        button_layout.addStretch(1)
+        button_layout.addWidget(self.save_button)
+        button_layout.addWidget(self.cancel_button)
+        form_layout_wrapper.addLayout(button_layout)
+
+        main_layout.addWidget(form_frame)
+
+        # --- 등록된 알람 목록 섹션 --- 
+        list_frame = QFrame(self)
+        list_frame.setObjectName("listFrame")
+        list_layout_wrapper = QVBoxLayout(list_frame)
+        
+        list_title_label = QLabel("Registered Alarms")
+        list_title_label.setObjectName("frameTitle")
+        list_layout_wrapper.addWidget(list_title_label)
+        
+        self.alarm_listwidget = QListWidget()
+        self.alarm_listwidget.currentItemChanged.connect(self.on_alarm_select)
+        self.alarm_listwidget.itemDoubleClicked.connect(self.toggle_alarm_enabled)
+        list_layout_wrapper.addWidget(self.alarm_listwidget)
+
+        # 목록 조작 버튼
+        list_button_layout = QHBoxLayout()
+        self.edit_button = QPushButton("Edit ✏️")
+        self.edit_button.clicked.connect(self.edit_alarm)
+        self.edit_button.setEnabled(False)
+        self.delete_button = QPushButton("Delete 🗑️")
+        self.delete_button.clicked.connect(self.delete_alarm)
+        self.delete_button.setEnabled(False)
+        self.toggle_button = QPushButton("Toggle 🔔/🔕")
+        self.toggle_button.clicked.connect(self.toggle_alarm_enabled)
+        self.toggle_button.setEnabled(False)
+        list_button_layout.addWidget(self.edit_button)
+        list_button_layout.addWidget(self.delete_button)
+        list_button_layout.addWidget(self.toggle_button)
+        list_button_layout.addStretch(1)
+        list_layout_wrapper.addLayout(list_button_layout)
+        
+        main_layout.addWidget(list_frame)
+
+    def update_alarm_listwidget(self):
+        """리스트 위젯을 현재 알람 목록으로 업데이트합니다."""
+        self.alarm_listwidget.clear()
+        # 시간 기준으로 정렬하여 표시
+        sorted_alarms = sorted(self.alarms, key=lambda a: a.time_str)
+        for alarm in sorted_alarms:
+            item = QListWidgetItem(str(alarm))
+            item.setData(Qt.UserRole, alarm) # 위젯 아이템에 Alarm 객체 저장
+            # 비활성화된 알람은 회색으로 표시
+            if not alarm.enabled:
+                item.setForeground(QColor('grey'))
+            self.alarm_listwidget.addItem(item)
+        self.clear_selection()
+        logging.debug("알람 리스트 위젯 업데이트 완료.")
+
+    def clear_selection(self):
+        """리스트 위젯 선택 해제 및 관련 버튼 비활성화"""
+        self.alarm_listwidget.setCurrentItem(None) # 선택 해제
+        self.selected_alarm = None
+        self.edit_button.setEnabled(False)
+        self.delete_button.setEnabled(False)
+        self.toggle_button.setEnabled(False)
+        logging.debug("리스트 위젯 선택 해제됨.")
+
+    def on_alarm_select(self, current_item: QListWidgetItem, previous_item: QListWidgetItem):
+        """리스트 위젯에서 알람을 선택했을 때 호출됩니다."""
+        if current_item is None:
+            self.selected_alarm = None
+            self.edit_button.setEnabled(False)
+            self.delete_button.setEnabled(False)
+            self.toggle_button.setEnabled(False)
+            return
+
+        self.selected_alarm = current_item.data(Qt.UserRole) # 저장된 Alarm 객체 가져오기
+        if self.selected_alarm:
+            self.edit_button.setEnabled(True)
+            self.delete_button.setEnabled(True)
+            self.toggle_button.setEnabled(True)
+            logging.debug(f"알람 선택됨: {self.selected_alarm}")
+        else:
+            logging.error("선택된 아이템에서 알람 데이터를 가져올 수 없습니다.")
+            self.clear_selection()
+            
+    def validate_input(self) -> bool:
+        """입력값 유효성 검사"""
+        title = self.title_edit.text().strip()
+        if not title:
+            QMessageBox.warning(self, "Input Error", "Alarm title cannot be empty.")
+            return False
+        # 시간 형식은 콤보박스로 제한되므로 별도 검사 불필요
+        return True
+
+    def save_alarm(self):
+        """알람을 저장 (추가 또는 수정)합니다."""
+        if not self.validate_input():
+            return
+
+        title = self.title_edit.text().strip()
+        time_str = f"{self.hour_combo.currentText()}:{self.minute_combo.currentText()}"
+        repeat = RepeatSetting(self.repeat_combo.currentText())
+
+        if self.edit_mode and self.selected_alarm:
+            # 수정 모드
+            logging.info(f"알람 수정 시작: ID {self.selected_alarm.id}, 이전 값: {self.selected_alarm}")
+            self.selected_alarm.title = title
+            self.selected_alarm.time_str = time_str
+            self.selected_alarm.repeat = repeat
+            logging.info(f"알람 수정 완료: ID {self.selected_alarm.id}, 새 값: {self.selected_alarm}")
+        else:
+            # 추가 모드
+            new_alarm = Alarm(title=title, time_str=time_str, repeat=repeat)
+            self.alarms.append(new_alarm)
+            logging.info(f"새 알람 추가됨: {new_alarm}")
+
+        self.alarms_updated.emit(self.alarms) # 변경 사항 시그널 발생
+        self.update_alarm_listwidget()
+        self.reset_form()
+        self.cancel_edit() # 수정 모드 해제
+
+    def edit_alarm(self):
+        """선택된 알람을 수정 모드로 전환합니다."""
+        if not self.selected_alarm:
+            return
+        
+        logging.info(f"알람 수정 모드 진입: {self.selected_alarm}")
+        self.title_edit.setText(self.selected_alarm.title)
+        hour, minute = self.selected_alarm.time_str.split(':')
+        self.hour_combo.setCurrentText(hour)
+        self.minute_combo.setCurrentText(minute)
+        self.repeat_combo.setCurrentText(self.selected_alarm.repeat.value)
+
+        self.edit_mode = True
+        self.form_title_label.setText("Edit Alarm")
+        self.save_button.setText("Update Alarm")
+        self.cancel_button.setVisible(True)
+        # 수정 중에는 목록 조작 버튼 비활성화
+        self.alarm_listwidget.setEnabled(False)
+        self.edit_button.setEnabled(False)
+        self.delete_button.setEnabled(False)
+        self.toggle_button.setEnabled(False)
+
+    def cancel_edit(self):
+        """수정 모드를 취소하고 폼을 초기화합니다."""
+        if not self.edit_mode: # 수정 모드가 아니면 아무것도 안 함
+             return
+        logging.info("수정 모드 취소됨.")
+        self.reset_form()
+        self.edit_mode = False
+        self.form_title_label.setText("Add Alarm")
+        self.save_button.setText("Save Alarm")
+        self.cancel_button.setVisible(False)
+        self.alarm_listwidget.setEnabled(True) # 리스트 위젯 다시 활성화
+        # 선택 상태에 따라 버튼 활성화 복원
+        self.on_alarm_select(self.alarm_listwidget.currentItem(), None)
+
+    def delete_alarm(self):
+        """선택된 알람을 삭제합니다."""
+        if not self.selected_alarm:
+            return
+
+        reply = QMessageBox.question(self, "Confirm Delete", 
+                                     f"Are you sure you want to delete the alarm '{self.selected_alarm.title}'?",
+                                     QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
+
+        if reply == QMessageBox.Yes:
+            logging.info(f"알람 삭제 시작: {self.selected_alarm}")
+            deleted_alarm_id = self.selected_alarm.id
+            self.alarms.remove(self.selected_alarm)
+            logging.info(f"알람 삭제 완료: ID {deleted_alarm_id}")
+            # self.alarms_updated.emit(self.alarms) # 이미 삭제되었으므로 전체 업데이트 대신 삭제 시그널 사용
+            self.alarm_deleted.emit(deleted_alarm_id) # 삭제된 ID 시그널 발생
+            self.update_alarm_listwidget()
+            self.reset_form()
+        else:
+            logging.info(f"알람 삭제 취소됨: {self.selected_alarm}")
+
+    def toggle_alarm_enabled(self, item: Optional[QListWidgetItem] = None):
+        """선택된 알람의 활성화 상태를 토글합니다."""
+        target_alarm = None
+        if item: # 더블클릭 시
+            target_alarm = item.data(Qt.UserRole)
+        elif self.selected_alarm: # 버튼 클릭 시
+            target_alarm = self.selected_alarm
+        
+        if not target_alarm:
+            logging.warning("토글할 알람을 찾을 수 없습니다.")
+            return
+
+        target_alarm.enabled = not target_alarm.enabled
+        logging.info(f"알람 활성화 상태 변경: {target_alarm.title} -> {'Enabled' if target_alarm.enabled else 'Disabled'}")
+        self.alarms_updated.emit(self.alarms) # 변경 사항 저장 요청
+        self.update_alarm_listwidget() # 목록 업데이트 (아이콘 및 색상 변경)
+
+        # 토글 후에도 선택 유지 (리스트 위젯에서 해당 아이템 다시 찾기)
+        for i in range(self.alarm_listwidget.count()):
+            list_item = self.alarm_listwidget.item(i)
+            if list_item.data(Qt.UserRole) == target_alarm:
+                self.alarm_listwidget.setCurrentItem(list_item) # 다시 선택
+                self.on_alarm_select(list_item, None) # 버튼 상태 업데이트
+                break
+
+    def reset_form(self):
+        """입력 폼을 초기 상태로 리셋합니다."""
+        self.title_edit.clear()
+        self.hour_combo.setCurrentText("07")
+        self.minute_combo.setCurrentText("00")
+        self.repeat_combo.setCurrentIndex(0) # 첫 번째 옵션 (None)
+        self.clear_selection()
+        logging.debug("입력 폼 리셋됨.")
+
+    def closeEvent(self, event):
+        """QWidget.close() 또는 창 닫기 버튼 클릭 시 호출됨"""
+        # 여기서 종료 확인 메시지를 표시하고 스케줄러 중지 로직 연결 가능
+        # 단, main.py에서 QApplication 종료 전에 처리하는 것이 더 일반적임
+        logging.debug("AlarmApp 위젯 closeEvent 호출됨.")
+        # event.accept() # 종료 허용
+        # event.ignore() # 종료 무시
+        super().closeEvent(event) # 기본 동작 수행
+
+# 테스트용 코드 (ui.py 직접 실행 시)
+if __name__ == '__main__':
+    app = QApplication(sys.argv)
+    # 테스트용 알람 데이터
+    test_alarms = [
+        Alarm(title="Morning Exercise", time_str="07:30", repeat=RepeatSetting.DAILY),
+        Alarm(title="Take Medicine", time_str="21:00", repeat=RepeatSetting.DAILY, enabled=False)
+    ]
+    ex = AlarmApp(test_alarms)
+    
+    # 시그널 연결 (테스트용)
+    def handle_update(alarms_list):
+        print("--- Alarms Updated Signal Received ---")
+        # print(alarms_list)
+    def handle_delete(deleted_id):
+        print(f"--- Alarm Deleted Signal Received: {deleted_id} ---")
+        
+    ex.alarms_updated.connect(handle_update)
+    ex.alarm_deleted.connect(handle_delete)
+    
+    ex.show()
+    sys.exit(app.exec_()) 
