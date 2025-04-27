@@ -4,7 +4,7 @@ from typing import List, Dict, Any
 from alarm import Alarm
 
 # 저장될 앱 이름 및 파일 이름 정의
-APP_NAME = "AlarmApp"
+APP_NAME = "AlarmReminderApp"
 FILE_NAME = "alarms.json"
 
 def get_storage_path() -> str:

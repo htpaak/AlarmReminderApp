@@ -1,4 +1,4 @@
-# Automatic Alarm/Reminder App
+# AlarmReminderApp
 
 A simple desktop application to set alarms and reminders with notifications.
 

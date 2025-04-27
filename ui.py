@@ -28,7 +28,7 @@ class AlarmApp(QWidget):
         self.update_alarm_listwidget()
 
     def initUI(self):
-        self.setWindowTitle("Alarm/Reminder App")
+        self.setWindowTitle("AlarmReminderApp") # 띄어쓰기 제거
         self.resize(600, 550) # 너비와 높이 증가
         self.setMinimumSize(600, 550) # 최소 너비와 높이 설정
         self.center() # 화면 중앙으로 이동시키는 메서드 호출

@@ -752,3 +752,25 @@
 2025-04-27 19:07:44,533 - INFO - [MainThread] - 스케줄러 중지 요청됨.
 2025-04-27 19:07:44,533 - INFO - [MainThread] - 애플리케이션 종료 완료.
 2025-04-27 19:07:44,534 - INFO - [MainThread] - PyQt5 애플리케이션 이벤트 루프 종료. 종료 코드: 0
+2025-04-27 19:08:53,242 - INFO - [MainThread] - 로깅 설정 완료.
+2025-04-27 19:08:53,245 - INFO - [MainThread] - High DPI Scaling 활성화됨.
+2025-04-27 19:08:53,247 - INFO - [MainThread] - 1개의 알람 로드 완료.
+2025-04-27 19:08:53,247 - INFO - [MainThread] - 기존 스케줄 클리어됨. 1개의 알람 스케줄링 시작.
+2025-04-27 19:08:53,249 - INFO - [MainThread] -   -> Mon at 08:00 스케줄됨 (Tag: 64e16305-2d14-4711-be16-493fb1426b36)
+2025-04-27 19:08:53,250 - INFO - [MainThread] -   -> Tue at 08:00 스케줄됨 (Tag: 64e16305-2d14-4711-be16-493fb1426b36)
+2025-04-27 19:08:53,251 - INFO - [MainThread] -   -> Wed at 08:00 스케줄됨 (Tag: 64e16305-2d14-4711-be16-493fb1426b36)
+2025-04-27 19:08:53,252 - INFO - [MainThread] -   -> Thu at 08:00 스케줄됨 (Tag: 64e16305-2d14-4711-be16-493fb1426b36)
+2025-04-27 19:08:53,253 - INFO - [MainThread] -   -> Fri at 08:00 스케줄됨 (Tag: 64e16305-2d14-4711-be16-493fb1426b36)
+2025-04-27 19:08:53,254 - INFO - [MainThread] -   -> Sat at 08:00 스케줄됨 (Tag: 64e16305-2d14-4711-be16-493fb1426b36)
+2025-04-27 19:08:53,255 - INFO - [MainThread] -   -> Sun at 08:00 스케줄됨 (Tag: 64e16305-2d14-4711-be16-493fb1426b36)
+2025-04-27 19:08:53,256 - INFO - [MainThread] - 알람 '약먹을시간' 스케줄 완료 (7개 작업 등록). 반복: [Daily]
+2025-04-27 19:08:53,258 - INFO - [MainThread] - 모든 활성 알람 스케줄링 완료.
+2025-04-27 19:08:53,258 - INFO - [MainThread] - 현재 스케줄된 작업 (7개): [Every 1 week at 08:00:00 do run_alarm(alarm=Alarm(title='약먹을시간', time_str='08:00', selected_days={0, 1, 2, 3, 4, 5, 6}, enabled=True, id='64e16305-2d14-4711-be16-493fb1426b36')) (last run: [never], next run: 2025-04-28 08:00:00), Every 1 week at 08:00:00 do run_alarm(alarm=Alarm(title='약먹을시간', time_str='08:00', selected_days={0, 1, 2, 3, 4, 5, 6}, enabled=True, id='64e16305-2d14-4711-be16-493fb1426b36')) (last run: [never], next run: 2025-04-29 08:00:00), Every 1 week at 08:00:00 do run_alarm(alarm=Alarm(title='약먹을시간', time_str='08:00', selected_days={0, 1, 2, 3, 4, 5, 6}, enabled=True, id='64e16305-2d14-4711-be16-493fb1426b36')) (last run: [never], next run: 2025-04-30 08:00:00), Every 1 week at 08:00:00 do run_alarm(alarm=Alarm(title='약먹을시간', time_str='08:00', selected_days={0, 1, 2, 3, 4, 5, 6}, enabled=True, id='64e16305-2d14-4711-be16-493fb1426b36')) (last run: [never], next run: 2025-05-01 08:00:00), Every 1 week at 08:00:00 do run_alarm(alarm=Alarm(title='약먹을시간', time_str='08:00', selected_days={0, 1, 2, 3, 4, 5, 6}, enabled=True, id='64e16305-2d14-4711-be16-493fb1426b36')) (last run: [never], next run: 2025-05-02 08:00:00), Every 1 week at 08:00:00 do run_alarm(alarm=Alarm(title='약먹을시간', time_str='08:00', selected_days={0, 1, 2, 3, 4, 5, 6}, enabled=True, id='64e16305-2d14-4711-be16-493fb1426b36')) (last run: [never], next run: 2025-05-03 08:00:00), Every 1 week at 08:00:00 do run_alarm(alarm=Alarm(title='약먹을시간', time_str='08:00', selected_days={0, 1, 2, 3, 4, 5, 6}, enabled=True, id='64e16305-2d14-4711-be16-493fb1426b36')) (last run: [never], next run: 2025-05-04 08:00:00)]
+2025-04-27 19:08:53,261 - INFO - [Thread-1 (run_continuously)] - 스케줄러 백그라운드 스레드 시작.
+2025-04-27 19:08:53,261 - INFO - [MainThread] - 스케줄러 시작 및 백그라운드 스레드 실행됨.
+2025-04-27 19:08:53,828 - INFO - [MainThread] - PyQt5 애플리케이션 이벤트 루프 시작.
+2025-04-27 19:09:43,281 - INFO - [MainThread] - 애플리케이션 종료 시퀀스 시작.
+2025-04-27 19:09:43,281 - INFO - [MainThread] - 스케줄러 중지 시도...
+2025-04-27 19:09:43,282 - INFO - [MainThread] - 스케줄러 중지 요청됨.
+2025-04-27 19:09:43,282 - INFO - [MainThread] - 애플리케이션 종료 완료.
+2025-04-27 19:09:43,283 - INFO - [MainThread] - PyQt5 애플리케이션 이벤트 루프 종료. 종료 코드: 0

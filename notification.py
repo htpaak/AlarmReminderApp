@@ -7,7 +7,7 @@ def show_notification(title: str, message: str):
         notification.notify(
             title=title,
             message=message,
-            app_name="Alarm App", # 앱 이름
+            app_name="AlarmReminderApp", # 띄어쓰기 제거
             timeout=10 # 10초 동안 표시
         )
         logging.info(f"알림 표시: {title} - {message}")
