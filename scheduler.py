@@ -3,16 +3,28 @@ import time
 import threading
 import logging
 from typing import List, Callable
-from alarm import Alarm, RepeatSetting
+import datetime
+
+# RepeatSetting 임포트 제거, WEEKDAYS 임포트
+from alarm import Alarm, WEEKDAYS #, RepeatSetting 
 from notification import show_notification
 
 # 스케줄러 실행 루프를 제어하기 위한 이벤트
 stop_run_continuously = threading.Event()
 
-def run_alarm(alarm: Alarm):
+def run_alarm(alarm: Alarm, job: schedule.Job):
     """알람이 울릴 때 실행될 함수"""
-    logging.info(f"알람 실행: {alarm.title} ({alarm.time_str}) - 반복: {alarm.repeat.value}")
+    repeat_str = alarm.get_repeat_str() if alarm.selected_days else "One-time"
+    logging.info(f"알람 실행: {alarm.title} ({alarm.time_str}) - 반복: {repeat_str}")
     show_notification(title=f"⏰ Alarm: {alarm.title}", message=f"It's {alarm.time_str}!")
+
+    # 일회성 알람인 경우 (selected_days가 비어 있음), 실행 후 작업 취소
+    if not alarm.selected_days:
+        logging.info(f"일회성 알람 '{alarm.title}' 실행 완료. 스케줄에서 제거합니다.")
+        # 실제 알람 비활성화는 UI/메인 로직과 연동 필요 (선택적)
+        # alarm.enabled = False # 예시: 여기서 직접 비활성화
+        # save_alarms(...) # 변경사항 저장 필요
+        return schedule.CancelJob # 작업을 스케줄러에서 제거
 
 def schedule_alarm(alarm: Alarm):
     """주어진 알람을 스케줄에 등록합니다."""
@@ -20,29 +32,49 @@ def schedule_alarm(alarm: Alarm):
         logging.debug(f"비활성화된 알람 건너뛰기: {alarm.title}")
         return
 
-    job = None
-    if alarm.repeat == RepeatSetting.DAILY:
-        job = schedule.every().day.at(alarm.time_str).do(run_alarm, alarm=alarm)
-    elif alarm.repeat == RepeatSetting.WEEKLY:
-        # schedule 라이브러리는 요일별 반복을 직접 지원하지 않음
-        # 매일 지정된 시간에 실행하되, run_alarm 내에서 요일 체크 필요 (여기서는 단순화)
-        # 또는 요일별로 schedule.every().monday.at(...) 등을 사용할 수 있으나 복잡해짐
-        # 여기서는 매주 반복도 일단 매일 실행으로 등록 (개선 필요)
-        # TODO: 주간 반복 정확하게 구현하기
-        logging.warning(f"주간 반복({alarm.title})은 현재 매일 반복으로 동작합니다.")
-        job = schedule.every().day.at(alarm.time_str).do(run_alarm, alarm=alarm)
-    elif alarm.repeat == RepeatSetting.NONE:
-        # 일회성 알람은 오늘 지정된 시간에 실행
-        # TODO: 이미 지난 시간의 일회성 알람은 스케줄하지 않거나 다음 날로 처리하는 로직 필요
-        job = schedule.every().day.at(alarm.time_str).do(run_alarm, alarm=alarm)
-        # 일회성 작업 실행 후 자동으로 제거되도록 태그 지정
-        job.tag(f'once_{alarm.id}')
+    scheduled_jobs_count = 0
+    
+    # 선택된 요일이 있는 경우: 요일별로 작업 등록
+    if alarm.selected_days:
+        day_map = {
+            0: schedule.every().monday,
+            1: schedule.every().tuesday,
+            2: schedule.every().wednesday,
+            3: schedule.every().thursday,
+            4: schedule.every().friday,
+            5: schedule.every().saturday,
+            6: schedule.every().sunday,
+        }
+        for day_index in alarm.selected_days:
+            if day_index in day_map:
+                try:
+                    job = day_map[day_index].at(alarm.time_str).do(run_alarm, alarm=alarm)
+                    job.tag(alarm.id) # 동일 알람 ID로 태그
+                    scheduled_jobs_count += 1
+                    logging.info(f"  -> {WEEKDAYS[day_index]} at {alarm.time_str} 스케줄됨 (Tag: {alarm.id})")
+                except Exception as e:
+                     logging.error(f"요일별 알람 스케줄 중 오류 ({WEEKDAYS[day_index]}): {e}")
+            else:
+                logging.warning(f"알 수 없는 요일 인덱스: {day_index}")
+    # 선택된 요일이 없는 경우: 일회성 알람으로 처리
     else:
-        logging.error(f"알 수 없는 반복 설정: {alarm.repeat}")
+        # TODO: 이미 지난 시간 처리 개선 필요
+        # 현재: 일단 오늘 해당 시간에 실행되도록 등록하고, run_alarm에서 취소
+        try:
+            job = schedule.every().day.at(alarm.time_str).do(run_alarm, alarm=alarm)
+            # 일회성 알람임을 구분하기 위한 태그 추가 (선택적, run_alarm에서 selected_days로 구분 가능)
+            # job.tag(f'once_{alarm.id}') 
+            job.tag(alarm.id)
+            scheduled_jobs_count += 1
+            logging.info(f"  -> One-time at {alarm.time_str} 스케줄됨 (Tag: {alarm.id})")
+        except Exception as e:
+             logging.error(f"일회성 알람 스케줄 중 오류: {e}")
 
-    if job:
-        job.tag(alarm.id) # 알람 ID로 태그 지정하여 관리 용이하게
-        logging.info(f"알람 스케줄됨: {alarm.title} ({alarm.time_str}) - 반복: {alarm.repeat.value}, 태그: {alarm.id}")
+    if scheduled_jobs_count > 0:
+        repeat_str = alarm.get_repeat_str() if alarm.selected_days else "One-time"
+        logging.info(f"알람 '{alarm.title}' 스케줄 완료 ({scheduled_jobs_count}개 작업 등록). 반복: {repeat_str}")
+    else:
+        logging.warning(f"알람 '{alarm.title}'에 대해 스케줄된 작업이 없습니다.")
 
 def schedule_alarms(alarms: List[Alarm]):
     """모든 알람을 스케줄에 등록합니다."""
@@ -51,7 +83,7 @@ def schedule_alarms(alarms: List[Alarm]):
     for alarm in alarms:
         schedule_alarm(alarm)
     logging.info("모든 활성 알람 스케줄링 완료.")
-    logging.info(f"현재 스케줄된 작업: {schedule.get_jobs()}")
+    logging.info(f"현재 스케줄된 작업 ({len(schedule.get_jobs())}개): {schedule.get_jobs()}")
 
 def run_continuously(interval=1):
     """스케줄러를 백그라운드에서 계속 실행합니다."""
@@ -59,28 +91,11 @@ def run_continuously(interval=1):
     while not stop_run_continuously.is_set():
         try:
             schedule.run_pending()
-
-            # 일회성 작업 처리: 실행 후 스케줄에서 제거
-            jobs_to_remove = []
-            for job in schedule.get_jobs():
-                if 'once_' in job.tags and job.last_run is not None:
-                    # job.last_run이 설정되었다면 한번 실행된 것
-                    # TODO: 정확한 일회성 처리를 위해서는 실행 시점에서 비활성화하고 저장하는 로직 필요
-                    #       여기서는 단순히 스케줄에서만 제거
-                    alarm_id_tag = next((tag for tag in job.tags if tag.startswith('once_')), None)
-                    if alarm_id_tag:
-                        logging.info(f"일회성 알람 '{alarm_id_tag}' 실행 완료. 스케줄에서 제거합니다.")
-                        jobs_to_remove.append(job)
-                        # 실제 알람 비활성화는 UI나 메인 로직에서 처리해야 함
-
-            for job in jobs_to_remove:
-                schedule.cancel_job(job)
-
+            # 일회성 작업 처리는 run_alarm 내부에서 schedule.CancelJob 반환으로 처리됨
             time.sleep(interval)
         except Exception as e:
             logging.exception("스케줄러 실행 중 오류 발생")
             time.sleep(interval) # 오류 발생 시에도 잠시 대기 후 계속
-
     logging.info("스케줄러 백그라운드 스레드 종료.")
 
 def start_scheduler(alarms: List[Alarm]):
@@ -105,15 +120,14 @@ def update_scheduled_alarm(alarm: Alarm):
     logging.info(f"알람 '{alarm.title}' ({alarm.id}) 스케줄 업데이트 중: 기존 작업 제거 완료.")
     # 알람이 활성화 상태일 때만 새로 스케줄
     if alarm.enabled:
-        schedule_alarm(alarm)
-        logging.info(f"알람 '{alarm.title}' ({alarm.id})이(가) 활성화되어 새로 스케줄됨.")
+        schedule_alarm(alarm) # 변경된 schedule_alarm 함수 호출
     else:
         logging.info(f"알람 '{alarm.title}' ({alarm.id})이(가) 비활성화 상태이므로 스케줄하지 않음.")
-    logging.info(f"업데이트 후 현재 스케줄된 작업: {schedule.get_jobs()}")
+    logging.info(f"업데이트 후 현재 스케줄된 작업 ({len(schedule.get_jobs())}개): {schedule.get_jobs()}")
 
 def remove_scheduled_alarm(alarm_id: str):
     """특정 ID의 알람을 스케줄에서 제거합니다."""
     logging.debug(f"'{alarm_id}' 태그를 가진 스케줄 작업 제거 시도.")
     schedule.clear(alarm_id)
     logging.info(f"알람 ID '{alarm_id}' 스케줄 제거 완료.")
-    logging.info(f"제거 후 현재 스케줄된 작업: {schedule.get_jobs()}") 
+    logging.info(f"제거 후 현재 스케줄된 작업 ({len(schedule.get_jobs())}개): {schedule.get_jobs()}") 

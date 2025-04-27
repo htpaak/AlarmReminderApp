@@ -1,15 +1,15 @@
 import sys
 import logging
-from typing import List, Callable, Optional
+from typing import List, Callable, Optional, Set
 from PyQt5.QtWidgets import (
     QApplication, QWidget, QVBoxLayout, QHBoxLayout, QFormLayout, 
     QLabel, QLineEdit, QComboBox, QPushButton, QListWidget, 
-    QMessageBox, QListWidgetItem, QFrame, QSizePolicy, QDesktopWidget
+    QMessageBox, QListWidgetItem, QFrame, QSizePolicy, QDesktopWidget, QButtonGroup
 )
 from PyQt5.QtCore import Qt, pyqtSignal, QSize
 from PyQt5.QtGui import QColor, QFont
 
-from alarm import Alarm, RepeatSetting
+from alarm import Alarm, WEEKDAYS
 
 class AlarmApp(QWidget):
     # 알람 목록 변경 시 메인 로직에 알리기 위한 시그널
@@ -21,6 +21,7 @@ class AlarmApp(QWidget):
         self.alarms = alarms
         self.selected_alarm: Optional[Alarm] = None
         self.edit_mode = False
+        self.day_buttons: List[QPushButton] = [] # 요일 버튼 리스트
 
         self.initUI()
         self.update_alarm_listwidget()
@@ -71,6 +72,18 @@ class AlarmApp(QWidget):
                 margin-bottom: 5px;
                 color: #333;
             }
+            QPushButton#dayButton { /* 요일 버튼 기본 스타일 */
+                padding: 5px 8px;
+                font-size: 9pt;
+                min-width: 40px; /* 최소 너비 */
+                background-color: #f8f8f8;
+                border: 1px solid #c0c0c0;
+            }
+            QPushButton#dayButton:checked { /* 선택된 요일 버튼 스타일 변경 */
+                background-color: #d9f7d9; /* 연한 녹색 */
+                border: 1px solid #9fdf9f; /* 조금 더 진한 녹색 테두리 */
+                font-weight: bold;
+            }
         """)
 
         main_layout = QVBoxLayout(self)
@@ -110,11 +123,19 @@ class AlarmApp(QWidget):
         time_layout.addStretch(1)
         form_layout.addRow("Time:", time_layout)
 
-        # 반복 설정
-        self.repeat_combo = QComboBox()
-        repeat_options = [setting.value for setting in RepeatSetting]
-        self.repeat_combo.addItems(repeat_options)
-        form_layout.addRow("Repeat:", self.repeat_combo)
+        # --- 반복 설정: 요일 버튼 --- 
+        day_button_layout = QHBoxLayout()
+        day_button_layout.setSpacing(5) # 버튼 간 간격
+        self.day_buttons = [] # 버튼 객체 저장 리스트 초기화
+        for i, day_name in enumerate(WEEKDAYS):
+            button = QPushButton(day_name)
+            button.setObjectName("dayButton") # 스타일 적용 위한 ID
+            button.setCheckable(True) # 클릭 시 상태 유지
+            day_button_layout.addWidget(button)
+            self.day_buttons.append(button)
+        day_button_layout.addStretch(1)
+        form_layout.addRow("Repeat on:", day_button_layout)
+        # --- 요일 버튼 끝 --- 
         
         form_layout_wrapper.addLayout(form_layout)
 
@@ -232,18 +253,22 @@ class AlarmApp(QWidget):
 
         title = self.title_edit.text().strip()
         time_str = f"{self.hour_combo.currentText()}:{self.minute_combo.currentText()}"
-        repeat = RepeatSetting(self.repeat_combo.currentText())
+        # 요일 버튼 상태 읽어서 selected_days 설정
+        selected_days: Set[int] = set()
+        for i, button in enumerate(self.day_buttons):
+            if button.isChecked():
+                selected_days.add(i) # 월요일=0, ..., 일요일=6
 
         if self.edit_mode and self.selected_alarm:
             # 수정 모드
             logging.info(f"알람 수정 시작: ID {self.selected_alarm.id}, 이전 값: {self.selected_alarm}")
             self.selected_alarm.title = title
             self.selected_alarm.time_str = time_str
-            self.selected_alarm.repeat = repeat
+            self.selected_alarm.selected_days = selected_days # 업데이트
             logging.info(f"알람 수정 완료: ID {self.selected_alarm.id}, 새 값: {self.selected_alarm}")
         else:
             # 추가 모드
-            new_alarm = Alarm(title=title, time_str=time_str, repeat=repeat)
+            new_alarm = Alarm(title=title, time_str=time_str, selected_days=selected_days)
             self.alarms.append(new_alarm)
             logging.info(f"새 알람 추가됨: {new_alarm}")
 
@@ -262,7 +287,9 @@ class AlarmApp(QWidget):
         hour, minute = self.selected_alarm.time_str.split(':')
         self.hour_combo.setCurrentText(hour)
         self.minute_combo.setCurrentText(minute)
-        self.repeat_combo.setCurrentText(self.selected_alarm.repeat.value)
+        # 요일 버튼 상태 업데이트
+        for i, button in enumerate(self.day_buttons):
+            button.setChecked(i in self.selected_alarm.selected_days)
 
         self.edit_mode = True
         self.form_title_label.setText("Edit Alarm")
@@ -339,7 +366,9 @@ class AlarmApp(QWidget):
         self.title_edit.clear()
         self.hour_combo.setCurrentText("07")
         self.minute_combo.setCurrentText("00")
-        self.repeat_combo.setCurrentIndex(0) # 첫 번째 옵션 (None)
+        # 모든 요일 버튼 선택 해제
+        for button in self.day_buttons:
+            button.setChecked(False)
         self.clear_selection()
         logging.debug("입력 폼 리셋됨.")
 
@@ -357,8 +386,9 @@ if __name__ == '__main__':
     app = QApplication(sys.argv)
     # 테스트용 알람 데이터
     test_alarms = [
-        Alarm(title="Morning Exercise", time_str="07:30", repeat=RepeatSetting.DAILY),
-        Alarm(title="Take Medicine", time_str="21:00", repeat=RepeatSetting.DAILY, enabled=False)
+        Alarm(title="Morning Exercise", time_str="07:30", selected_days={0, 1, 2, 3, 4}), # 월~금
+        Alarm(title="Weekend Jogging", time_str="09:00", selected_days={5, 6}), # 토, 일
+        Alarm(title="Meeting", time_str="14:00", selected_days={2}, enabled=False) # 수요일, 비활성
     ]
     ex = AlarmApp(test_alarms)
     
