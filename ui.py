@@ -4,7 +4,7 @@ from typing import List, Callable, Optional
 from PyQt5.QtWidgets import (
     QApplication, QWidget, QVBoxLayout, QHBoxLayout, QFormLayout, 
     QLabel, QLineEdit, QComboBox, QPushButton, QListWidget, 
-    QMessageBox, QListWidgetItem, QFrame, QSizePolicy
+    QMessageBox, QListWidgetItem, QFrame, QSizePolicy, QDesktopWidget
 )
 from PyQt5.QtCore import Qt, pyqtSignal, QSize
 from PyQt5.QtGui import QColor, QFont
@@ -27,7 +27,8 @@ class AlarmApp(QWidget):
 
     def initUI(self):
         self.setWindowTitle("Alarm/Reminder App")
-        self.setGeometry(300, 300, 550, 500) # x, y, width, height
+        self.resize(550, 500) # 창 크기 설정
+        self.center() # 화면 중앙으로 이동시키는 메서드 호출
         self.setStyleSheet("""
             QWidget { 
                 background-color: #f0f0f0; 
@@ -163,6 +164,14 @@ class AlarmApp(QWidget):
         list_layout_wrapper.addLayout(list_button_layout)
         
         main_layout.addWidget(list_frame)
+
+    def center(self):
+        """창을 화면 중앙으로 이동시킵니다."""
+        qr = self.frameGeometry() # 창의 프레임 형상 정보 (위치, 크기)
+        # 사용 가능한 화면 영역의 중앙점을 구함
+        cp = QApplication.primaryScreen().availableGeometry().center() 
+        qr.moveCenter(cp) # 창의 중앙을 화면 중앙으로 이동
+        self.move(qr.topLeft()) # 계산된 왼쪽 상단 좌표로 창 이동
 
     def update_alarm_listwidget(self):
         """리스트 위젯을 현재 알람 목록으로 업데이트합니다."""

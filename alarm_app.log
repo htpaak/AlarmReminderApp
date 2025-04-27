@@ -73,3 +73,31 @@
 2025-04-27 18:28:28,282 - INFO - [MainThread] - 스케줄러 중지 요청됨.
 2025-04-27 18:28:28,282 - INFO - [MainThread] - 애플리케이션 종료 완료.
 2025-04-27 18:28:28,283 - INFO - [MainThread] - PyQt5 애플리케이션 이벤트 루프 종료. 종료 코드: 0
+2025-04-27 18:29:58,614 - INFO - [MainThread] - 로깅 설정 완료.
+2025-04-27 18:29:58,615 - INFO - [MainThread] - 1개의 알람 로드 완료.
+2025-04-27 18:29:58,615 - INFO - [MainThread] - 기존 스케줄 클리어됨. 1개의 알람 스케줄링 시작.
+2025-04-27 18:29:58,616 - INFO - [MainThread] - 알람 스케줄됨: 1 (18:23) - 반복: Daily, 태그: f284d0f1-98fd-4de3-88c2-1a0a1b38cdf5
+2025-04-27 18:29:58,616 - INFO - [MainThread] - 모든 활성 알람 스케줄링 완료.
+2025-04-27 18:29:58,617 - INFO - [MainThread] - 현재 스케줄된 작업: [Every 1 day at 18:23:00 do run_alarm(alarm=Alarm(title='1', time_str='18:23', repeat=<RepeatSetting.DAILY: 'Daily'>, enabled=True, id='f284d0f1-98fd-4de3-88c2-1a0a1b38cdf5')) (last run: [never], next run: 2025-04-28 18:23:00)]
+2025-04-27 18:29:58,618 - INFO - [Thread-1 (run_continuously)] - 스케줄러 백그라운드 스레드 시작.
+2025-04-27 18:29:58,618 - INFO - [MainThread] - 스케줄러 시작 및 백그라운드 스레드 실행됨.
+2025-04-27 18:29:59,230 - INFO - [MainThread] - PyQt5 애플리케이션 이벤트 루프 시작.
+2025-04-27 18:30:00,716 - INFO - [MainThread] - 애플리케이션 종료 시퀀스 시작.
+2025-04-27 18:30:00,716 - INFO - [MainThread] - 스케줄러 중지 시도...
+2025-04-27 18:30:00,716 - INFO - [MainThread] - 스케줄러 중지 요청됨.
+2025-04-27 18:30:00,717 - INFO - [MainThread] - 애플리케이션 종료 완료.
+2025-04-27 18:30:00,717 - INFO - [MainThread] - PyQt5 애플리케이션 이벤트 루프 종료. 종료 코드: 0
+2025-04-27 18:30:24,090 - INFO - [MainThread] - 로깅 설정 완료.
+2025-04-27 18:30:24,091 - INFO - [MainThread] - 1개의 알람 로드 완료.
+2025-04-27 18:30:24,092 - INFO - [MainThread] - 기존 스케줄 클리어됨. 1개의 알람 스케줄링 시작.
+2025-04-27 18:30:24,094 - INFO - [MainThread] - 알람 스케줄됨: 1 (18:23) - 반복: Daily, 태그: f284d0f1-98fd-4de3-88c2-1a0a1b38cdf5
+2025-04-27 18:30:24,094 - INFO - [MainThread] - 모든 활성 알람 스케줄링 완료.
+2025-04-27 18:30:24,095 - INFO - [MainThread] - 현재 스케줄된 작업: [Every 1 day at 18:23:00 do run_alarm(alarm=Alarm(title='1', time_str='18:23', repeat=<RepeatSetting.DAILY: 'Daily'>, enabled=True, id='f284d0f1-98fd-4de3-88c2-1a0a1b38cdf5')) (last run: [never], next run: 2025-04-28 18:23:00)]
+2025-04-27 18:30:24,096 - INFO - [Thread-1 (run_continuously)] - 스케줄러 백그라운드 스레드 시작.
+2025-04-27 18:30:24,096 - INFO - [MainThread] - 스케줄러 시작 및 백그라운드 스레드 실행됨.
+2025-04-27 18:30:24,680 - INFO - [MainThread] - PyQt5 애플리케이션 이벤트 루프 시작.
+2025-04-27 18:30:26,180 - INFO - [MainThread] - 애플리케이션 종료 시퀀스 시작.
+2025-04-27 18:30:26,180 - INFO - [MainThread] - 스케줄러 중지 시도...
+2025-04-27 18:30:26,181 - INFO - [MainThread] - 스케줄러 중지 요청됨.
+2025-04-27 18:30:26,181 - INFO - [MainThread] - 애플리케이션 종료 완료.
+2025-04-27 18:30:26,181 - INFO - [MainThread] - PyQt5 애플리케이션 이벤트 루프 종료. 종료 코드: 0
