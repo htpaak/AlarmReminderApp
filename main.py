@@ -6,6 +6,9 @@ from typing import List, Optional
 # PyQt5 임포트 추가
 from PyQt5.QtWidgets import QApplication, QMessageBox
 from PyQt5.QtCore import Qt # Qt 임포트 추가
+# ctypes 임포트 추가 (Windows API 호출용)
+import ctypes
+import platform
 
 from alarm import Alarm
 from storage import load_alarms, save_alarms
@@ -27,6 +30,18 @@ def setup_logging():
 
 def main():
     setup_logging()
+
+    # --- AppUserModelID 설정 (Windows 작업 표시줄 아이콘용) --- 
+    if platform.system() == "Windows":
+        myappid = u'MyCompanyName.MyProductName.AlarmReminderApp.1' # 고유 ID 문자열
+        try:
+            ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(myappid)
+            logging.info(f"AppUserModelID 설정 완료: {myappid}")
+        except AttributeError:
+            logging.warning("ctypes 또는 SetCurrentProcessExplicitAppUserModelID를 사용할 수 없습니다.")
+        except Exception as e:
+            logging.error(f"AppUserModelID 설정 중 오류 발생: {e}")
+    # --------------------------------------------------------
 
     # --- DPI 스케일링 활성화 --- 
     # QApplication 인스턴스 생성 전에 호출해야 함

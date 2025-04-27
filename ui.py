@@ -8,7 +8,7 @@ from PyQt5.QtWidgets import (
     QListView
 )
 from PyQt5.QtCore import Qt, pyqtSignal, QSize
-from PyQt5.QtGui import QColor, QFont
+from PyQt5.QtGui import QColor, QFont, QIcon
 
 from alarm import Alarm, WEEKDAYS
 
@@ -32,6 +32,16 @@ class AlarmApp(QWidget):
         self.resize(600, 550) # 너비와 높이 증가
         self.setMinimumSize(600, 550) # 최소 너비와 높이 설정
         self.center() # 화면 중앙으로 이동시키는 메서드 호출
+        
+        # --- 창 아이콘 설정 --- 
+        app_icon = QIcon("assets/icon.svg")
+        if not app_icon.isNull():
+             self.setWindowIcon(app_icon)
+             print("애플리케이션 아이콘 설정 완료: assets/icon.svg")
+        else:
+             print("경고: assets/icon.svg 파일을 찾을 수 없거나 유효하지 않습니다.")
+        # ---------------------
+
         self.setStyleSheet("""
             QWidget { 
                 background-color: #f0f0f0; 
