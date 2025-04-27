@@ -3,7 +3,9 @@
         "id": "7c353119-5538-4f77-9bf0-3907354bdc76",
         "title": "약먹을시간",
         "time_str": "04:03",
-        "selected_days": [],
+        "selected_days": [
+            4
+        ],
         "enabled": true
     }
 ]

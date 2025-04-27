@@ -5,6 +5,7 @@ from typing import List, Optional
 # from tkinter import messagebox 
 # PyQt5 임포트 추가
 from PyQt5.QtWidgets import QApplication, QMessageBox
+from PyQt5.QtCore import Qt # Qt 임포트 추가
 
 from alarm import Alarm
 from storage import load_alarms, save_alarms
@@ -26,6 +27,13 @@ def setup_logging():
 
 def main():
     setup_logging()
+
+    # --- DPI 스케일링 활성화 --- 
+    # QApplication 인스턴스 생성 전에 호출해야 함
+    QApplication.setAttribute(Qt.AA_EnableHighDpiScaling, True) 
+    # QApplication.setAttribute(Qt.AA_UseHighDpiPixmaps, True) # 아이콘/이미지에도 적용 (선택 사항)
+    logging.info("High DPI Scaling 활성화됨.")
+    # -------------------------
 
     # 저장된 알람 로드
     alarms = load_alarms()
