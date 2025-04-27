@@ -10,25 +10,17 @@ from PyQt5.QtCore import Qt # Qt 임포트 추가
 import ctypes
 import platform
 
+# log_setup 모듈에서 setup_logging 함수 임포트
+from log_setup import setup_logging
+
 from alarm import Alarm
 from storage import load_alarms, save_alarms
 # from ui import AlarmApp # PyQt5 버전으로 변경
 from ui import AlarmApp
 from scheduler import start_scheduler, stop_scheduler, update_scheduled_alarm, remove_scheduled_alarm
 
-def setup_logging():
-    """기본 로깅 설정을 구성합니다."""
-    logging.basicConfig(
-        level=logging.INFO, # 로그 레벨 설정 (DEBUG, INFO, WARNING, ERROR, CRITICAL)
-        format='%(asctime)s - %(levelname)s - [%(threadName)s] - %(message)s',
-        handlers=[
-            logging.FileHandler("alarm_app.log", encoding='utf-8'), # 로그 파일 핸들러
-            logging.StreamHandler(sys.stdout) # 콘솔 출력 핸들러
-        ]
-    )
-    logging.info("로깅 설정 완료.")
-
 def main():
+    # log_setup.py의 setup_logging 함수 호출
     setup_logging()
 
     # --- AppUserModelID 설정 (Windows 작업 표시줄 아이콘용) --- 
