@@ -217,3 +217,269 @@
 2025-04-27 18:40:14,062 - INFO - [MainThread] - PyQt5 애플리케이션 이벤트 루프 시작.
 2025-04-27 18:40:35,316 - INFO - [MainThread] - 새 알람 추가됨: 🔔 07:00 - 11 [Mon, Tue]
 2025-04-27 18:40:35,316 - INFO - [MainThread] - UI로부터 알람 업데이트 시그널 수신. 총 2개.
+2025-04-27 18:41:54,243 - INFO - [MainThread] - 로깅 설정 완료.
+2025-04-27 18:41:54,244 - INFO - [MainThread] - 2개의 알람 로드 완료.
+2025-04-27 18:41:54,244 - INFO - [MainThread] - 기존 스케줄 클리어됨. 2개의 알람 스케줄링 시작.
+2025-04-27 18:41:54,245 - INFO - [MainThread] -   -> Mon at 18:23 스케줄됨 (Tag: f284d0f1-98fd-4de3-88c2-1a0a1b38cdf5)
+2025-04-27 18:41:54,245 - INFO - [MainThread] -   -> Tue at 18:23 스케줄됨 (Tag: f284d0f1-98fd-4de3-88c2-1a0a1b38cdf5)
+2025-04-27 18:41:54,245 - INFO - [MainThread] -   -> Wed at 18:23 스케줄됨 (Tag: f284d0f1-98fd-4de3-88c2-1a0a1b38cdf5)
+2025-04-27 18:41:54,245 - INFO - [MainThread] -   -> Thu at 18:23 스케줄됨 (Tag: f284d0f1-98fd-4de3-88c2-1a0a1b38cdf5)
+2025-04-27 18:41:54,246 - INFO - [MainThread] -   -> Fri at 18:23 스케줄됨 (Tag: f284d0f1-98fd-4de3-88c2-1a0a1b38cdf5)
+2025-04-27 18:41:54,246 - INFO - [MainThread] -   -> Sat at 18:23 스케줄됨 (Tag: f284d0f1-98fd-4de3-88c2-1a0a1b38cdf5)
+2025-04-27 18:41:54,246 - INFO - [MainThread] -   -> Sun at 18:23 스케줄됨 (Tag: f284d0f1-98fd-4de3-88c2-1a0a1b38cdf5)
+2025-04-27 18:41:54,246 - INFO - [MainThread] - 알람 '1' 스케줄 완료 (7개 작업 등록). 반복: [Daily]
+2025-04-27 18:41:54,247 - INFO - [MainThread] -   -> Mon at 07:00 스케줄됨 (Tag: c4d5aac8-7ffc-4a9a-8b95-1fc604537093)
+2025-04-27 18:41:54,247 - INFO - [MainThread] -   -> Tue at 07:00 스케줄됨 (Tag: c4d5aac8-7ffc-4a9a-8b95-1fc604537093)
+2025-04-27 18:41:54,247 - INFO - [MainThread] - 알람 '11' 스케줄 완료 (2개 작업 등록). 반복: [Mon, Tue]
+2025-04-27 18:41:54,247 - INFO - [MainThread] - 모든 활성 알람 스케줄링 완료.
+2025-04-27 18:41:54,248 - INFO - [MainThread] - 현재 스케줄된 작업 (9개): [Every 1 week at 18:23:00 do run_alarm(alarm=Alarm(title='1', time_str='18:23', selected_days={0, 1, 2, 3, 4, 5, 6}, enabled=True, id='f284d0f1-98fd-4de3-88c2-1a0a1b38cdf5')) (last run: [never], next run: 2025-04-28 18:23:00), Every 1 week at 18:23:00 do run_alarm(alarm=Alarm(title='1', time_str='18:23', selected_days={0, 1, 2, 3, 4, 5, 6}, enabled=True, id='f284d0f1-98fd-4de3-88c2-1a0a1b38cdf5')) (last run: [never], next run: 2025-04-29 18:23:00), Every 1 week at 18:23:00 do run_alarm(alarm=Alarm(title='1', time_str='18:23', selected_days={0, 1, 2, 3, 4, 5, 6}, enabled=True, id='f284d0f1-98fd-4de3-88c2-1a0a1b38cdf5')) (last run: [never], next run: 2025-04-30 18:23:00), Every 1 week at 18:23:00 do run_alarm(alarm=Alarm(title='1', time_str='18:23', selected_days={0, 1, 2, 3, 4, 5, 6}, enabled=True, id='f284d0f1-98fd-4de3-88c2-1a0a1b38cdf5')) (last run: [never], next run: 2025-05-01 18:23:00), Every 1 week at 18:23:00 do run_alarm(alarm=Alarm(title='1', time_str='18:23', selected_days={0, 1, 2, 3, 4, 5, 6}, enabled=True, id='f284d0f1-98fd-4de3-88c2-1a0a1b38cdf5')) (last run: [never], next run: 2025-05-02 18:23:00), Every 1 week at 18:23:00 do run_alarm(alarm=Alarm(title='1', time_str='18:23', selected_days={0, 1, 2, 3, 4, 5, 6}, enabled=True, id='f284d0f1-98fd-4de3-88c2-1a0a1b38cdf5')) (last run: [never], next run: 2025-05-03 18:23:00), Every 1 week at 18:23:00 do run_alarm(alarm=Alarm(title='1', time_str='18:23', selected_days={0, 1, 2, 3, 4, 5, 6}, enabled=True, id='f284d0f1-98fd-4de3-88c2-1a0a1b38cdf5')) (last run: [never], next run: 2025-05-04 18:23:00), Every 1 week at 07:00:00 do run_alarm(alarm=Alarm(title='11', time_str='07:00', selected_days={0, 1}, enabled=True, id='c4d5aac8-7ffc-4a9a-8b95-1fc604537093')) (last run: [never], next run: 2025-04-28 07:00:00), Every 1 week at 07:00:00 do run_alarm(alarm=Alarm(title='11', time_str='07:00', selected_days={0, 1}, enabled=True, id='c4d5aac8-7ffc-4a9a-8b95-1fc604537093')) (last run: [never], next run: 2025-04-29 07:00:00)]
+2025-04-27 18:41:54,249 - INFO - [Thread-1 (run_continuously)] - 스케줄러 백그라운드 스레드 시작.
+2025-04-27 18:41:54,250 - INFO - [MainThread] - 스케줄러 시작 및 백그라운드 스레드 실행됨.
+2025-04-27 18:41:54,951 - INFO - [MainThread] - PyQt5 애플리케이션 이벤트 루프 시작.
+2025-04-27 18:41:58,109 - INFO - [MainThread] - 새 알람 추가됨: 🔔 07:00 - 11 [Mon]
+2025-04-27 18:41:58,109 - INFO - [MainThread] - UI로부터 알람 업데이트 시그널 수신. 총 3개.
+2025-04-27 18:41:58,110 - INFO - [MainThread] - 알람 ID f284d0f1-98fd-4de3-88c2-1a0a1b38cdf5 스케줄 업데이트/추가 요청.
+2025-04-27 18:41:58,110 - INFO - [MainThread] - 알람 '1' (f284d0f1-98fd-4de3-88c2-1a0a1b38cdf5) 스케줄 업데이트 중: 기존 작업 제거 완료.
+2025-04-27 18:41:58,111 - INFO - [MainThread] -   -> Mon at 18:23 스케줄됨 (Tag: f284d0f1-98fd-4de3-88c2-1a0a1b38cdf5)
+2025-04-27 18:41:58,111 - INFO - [MainThread] -   -> Tue at 18:23 스케줄됨 (Tag: f284d0f1-98fd-4de3-88c2-1a0a1b38cdf5)
+2025-04-27 18:41:58,111 - INFO - [MainThread] -   -> Wed at 18:23 스케줄됨 (Tag: f284d0f1-98fd-4de3-88c2-1a0a1b38cdf5)
+2025-04-27 18:41:58,111 - INFO - [MainThread] -   -> Thu at 18:23 스케줄됨 (Tag: f284d0f1-98fd-4de3-88c2-1a0a1b38cdf5)
+2025-04-27 18:41:58,112 - INFO - [MainThread] -   -> Fri at 18:23 스케줄됨 (Tag: f284d0f1-98fd-4de3-88c2-1a0a1b38cdf5)
+2025-04-27 18:41:58,112 - INFO - [MainThread] -   -> Sat at 18:23 스케줄됨 (Tag: f284d0f1-98fd-4de3-88c2-1a0a1b38cdf5)
+2025-04-27 18:41:58,112 - INFO - [MainThread] -   -> Sun at 18:23 스케줄됨 (Tag: f284d0f1-98fd-4de3-88c2-1a0a1b38cdf5)
+2025-04-27 18:41:58,112 - INFO - [MainThread] - 알람 '1' 스케줄 완료 (7개 작업 등록). 반복: [Daily]
+2025-04-27 18:41:58,113 - INFO - [MainThread] - 업데이트 후 현재 스케줄된 작업 (9개): [Every 1 week at 07:00:00 do run_alarm(alarm=Alarm(title='11', time_str='07:00', selected_days={0, 1}, enabled=True, id='c4d5aac8-7ffc-4a9a-8b95-1fc604537093')) (last run: [never], next run: 2025-04-28 07:00:00), Every 1 week at 07:00:00 do run_alarm(alarm=Alarm(title='11', time_str='07:00', selected_days={0, 1}, enabled=True, id='c4d5aac8-7ffc-4a9a-8b95-1fc604537093')) (last run: [never], next run: 2025-04-29 07:00:00), Every 1 week at 18:23:00 do run_alarm(alarm=Alarm(title='1', time_str='18:23', selected_days={0, 1, 2, 3, 4, 5, 6}, enabled=True, id='f284d0f1-98fd-4de3-88c2-1a0a1b38cdf5')) (last run: [never], next run: 2025-04-28 18:23:00), Every 1 week at 18:23:00 do run_alarm(alarm=Alarm(title='1', time_str='18:23', selected_days={0, 1, 2, 3, 4, 5, 6}, enabled=True, id='f284d0f1-98fd-4de3-88c2-1a0a1b38cdf5')) (last run: [never], next run: 2025-04-29 18:23:00), Every 1 week at 18:23:00 do run_alarm(alarm=Alarm(title='1', time_str='18:23', selected_days={0, 1, 2, 3, 4, 5, 6}, enabled=True, id='f284d0f1-98fd-4de3-88c2-1a0a1b38cdf5')) (last run: [never], next run: 2025-04-30 18:23:00), Every 1 week at 18:23:00 do run_alarm(alarm=Alarm(title='1', time_str='18:23', selected_days={0, 1, 2, 3, 4, 5, 6}, enabled=True, id='f284d0f1-98fd-4de3-88c2-1a0a1b38cdf5')) (last run: [never], next run: 2025-05-01 18:23:00), Every 1 week at 18:23:00 do run_alarm(alarm=Alarm(title='1', time_str='18:23', selected_days={0, 1, 2, 3, 4, 5, 6}, enabled=True, id='f284d0f1-98fd-4de3-88c2-1a0a1b38cdf5')) (last run: [never], next run: 2025-05-02 18:23:00), Every 1 week at 18:23:00 do run_alarm(alarm=Alarm(title='1', time_str='18:23', selected_days={0, 1, 2, 3, 4, 5, 6}, enabled=True, id='f284d0f1-98fd-4de3-88c2-1a0a1b38cdf5')) (last run: [never], next run: 2025-05-03 18:23:00), Every 1 week at 18:23:00 do run_alarm(alarm=Alarm(title='1', time_str='18:23', selected_days={0, 1, 2, 3, 4, 5, 6}, enabled=True, id='f284d0f1-98fd-4de3-88c2-1a0a1b38cdf5')) (last run: [never], next run: 2025-05-04 18:23:00)]
+2025-04-27 18:41:58,114 - INFO - [MainThread] - 알람 ID c4d5aac8-7ffc-4a9a-8b95-1fc604537093 스케줄 업데이트/추가 요청.
+2025-04-27 18:41:58,114 - INFO - [MainThread] - 알람 '11' (c4d5aac8-7ffc-4a9a-8b95-1fc604537093) 스케줄 업데이트 중: 기존 작업 제거 완료.
+2025-04-27 18:41:58,115 - INFO - [MainThread] -   -> Mon at 07:00 스케줄됨 (Tag: c4d5aac8-7ffc-4a9a-8b95-1fc604537093)
+2025-04-27 18:41:58,115 - INFO - [MainThread] -   -> Tue at 07:00 스케줄됨 (Tag: c4d5aac8-7ffc-4a9a-8b95-1fc604537093)
+2025-04-27 18:41:58,115 - INFO - [MainThread] - 알람 '11' 스케줄 완료 (2개 작업 등록). 반복: [Mon, Tue]
+2025-04-27 18:41:58,116 - INFO - [MainThread] - 업데이트 후 현재 스케줄된 작업 (9개): [Every 1 week at 18:23:00 do run_alarm(alarm=Alarm(title='1', time_str='18:23', selected_days={0, 1, 2, 3, 4, 5, 6}, enabled=True, id='f284d0f1-98fd-4de3-88c2-1a0a1b38cdf5')) (last run: [never], next run: 2025-04-28 18:23:00), Every 1 week at 18:23:00 do run_alarm(alarm=Alarm(title='1', time_str='18:23', selected_days={0, 1, 2, 3, 4, 5, 6}, enabled=True, id='f284d0f1-98fd-4de3-88c2-1a0a1b38cdf5')) (last run: [never], next run: 2025-04-29 18:23:00), Every 1 week at 18:23:00 do run_alarm(alarm=Alarm(title='1', time_str='18:23', selected_days={0, 1, 2, 3, 4, 5, 6}, enabled=True, id='f284d0f1-98fd-4de3-88c2-1a0a1b38cdf5')) (last run: [never], next run: 2025-04-30 18:23:00), Every 1 week at 18:23:00 do run_alarm(alarm=Alarm(title='1', time_str='18:23', selected_days={0, 1, 2, 3, 4, 5, 6}, enabled=True, id='f284d0f1-98fd-4de3-88c2-1a0a1b38cdf5')) (last run: [never], next run: 2025-05-01 18:23:00), Every 1 week at 18:23:00 do run_alarm(alarm=Alarm(title='1', time_str='18:23', selected_days={0, 1, 2, 3, 4, 5, 6}, enabled=True, id='f284d0f1-98fd-4de3-88c2-1a0a1b38cdf5')) (last run: [never], next run: 2025-05-02 18:23:00), Every 1 week at 18:23:00 do run_alarm(alarm=Alarm(title='1', time_str='18:23', selected_days={0, 1, 2, 3, 4, 5, 6}, enabled=True, id='f284d0f1-98fd-4de3-88c2-1a0a1b38cdf5')) (last run: [never], next run: 2025-05-03 18:23:00), Every 1 week at 18:23:00 do run_alarm(alarm=Alarm(title='1', time_str='18:23', selected_days={0, 1, 2, 3, 4, 5, 6}, enabled=True, id='f284d0f1-98fd-4de3-88c2-1a0a1b38cdf5')) (last run: [never], next run: 2025-05-04 18:23:00), Every 1 week at 07:00:00 do run_alarm(alarm=Alarm(title='11', time_str='07:00', selected_days={0, 1}, enabled=True, id='c4d5aac8-7ffc-4a9a-8b95-1fc604537093')) (last run: [never], next run: 2025-04-28 07:00:00), Every 1 week at 07:00:00 do run_alarm(alarm=Alarm(title='11', time_str='07:00', selected_days={0, 1}, enabled=True, id='c4d5aac8-7ffc-4a9a-8b95-1fc604537093')) (last run: [never], next run: 2025-04-29 07:00:00)]
+2025-04-27 18:41:58,117 - INFO - [MainThread] - 알람 ID e161595d-5f5f-42cf-a5a2-939b023248d0 스케줄 업데이트/추가 요청.
+2025-04-27 18:41:58,117 - INFO - [MainThread] - 알람 '11' (e161595d-5f5f-42cf-a5a2-939b023248d0) 스케줄 업데이트 중: 기존 작업 제거 완료.
+2025-04-27 18:41:58,117 - INFO - [MainThread] -   -> Mon at 07:00 스케줄됨 (Tag: e161595d-5f5f-42cf-a5a2-939b023248d0)
+2025-04-27 18:41:58,118 - INFO - [MainThread] - 알람 '11' 스케줄 완료 (1개 작업 등록). 반복: [Mon]
+2025-04-27 18:41:58,118 - INFO - [MainThread] - 업데이트 후 현재 스케줄된 작업 (10개): [Every 1 week at 18:23:00 do run_alarm(alarm=Alarm(title='1', time_str='18:23', selected_days={0, 1, 2, 3, 4, 5, 6}, enabled=True, id='f284d0f1-98fd-4de3-88c2-1a0a1b38cdf5')) (last run: [never], next run: 2025-04-28 18:23:00), Every 1 week at 18:23:00 do run_alarm(alarm=Alarm(title='1', time_str='18:23', selected_days={0, 1, 2, 3, 4, 5, 6}, enabled=True, id='f284d0f1-98fd-4de3-88c2-1a0a1b38cdf5')) (last run: [never], next run: 2025-04-29 18:23:00), Every 1 week at 18:23:00 do run_alarm(alarm=Alarm(title='1', time_str='18:23', selected_days={0, 1, 2, 3, 4, 5, 6}, enabled=True, id='f284d0f1-98fd-4de3-88c2-1a0a1b38cdf5')) (last run: [never], next run: 2025-04-30 18:23:00), Every 1 week at 18:23:00 do run_alarm(alarm=Alarm(title='1', time_str='18:23', selected_days={0, 1, 2, 3, 4, 5, 6}, enabled=True, id='f284d0f1-98fd-4de3-88c2-1a0a1b38cdf5')) (last run: [never], next run: 2025-05-01 18:23:00), Every 1 week at 18:23:00 do run_alarm(alarm=Alarm(title='1', time_str='18:23', selected_days={0, 1, 2, 3, 4, 5, 6}, enabled=True, id='f284d0f1-98fd-4de3-88c2-1a0a1b38cdf5')) (last run: [never], next run: 2025-05-02 18:23:00), Every 1 week at 18:23:00 do run_alarm(alarm=Alarm(title='1', time_str='18:23', selected_days={0, 1, 2, 3, 4, 5, 6}, enabled=True, id='f284d0f1-98fd-4de3-88c2-1a0a1b38cdf5')) (last run: [never], next run: 2025-05-03 18:23:00), Every 1 week at 18:23:00 do run_alarm(alarm=Alarm(title='1', time_str='18:23', selected_days={0, 1, 2, 3, 4, 5, 6}, enabled=True, id='f284d0f1-98fd-4de3-88c2-1a0a1b38cdf5')) (last run: [never], next run: 2025-05-04 18:23:00), Every 1 week at 07:00:00 do run_alarm(alarm=Alarm(title='11', time_str='07:00', selected_days={0, 1}, enabled=True, id='c4d5aac8-7ffc-4a9a-8b95-1fc604537093')) (last run: [never], next run: 2025-04-28 07:00:00), Every 1 week at 07:00:00 do run_alarm(alarm=Alarm(title='11', time_str='07:00', selected_days={0, 1}, enabled=True, id='c4d5aac8-7ffc-4a9a-8b95-1fc604537093')) (last run: [never], next run: 2025-04-29 07:00:00), Every 1 week at 07:00:00 do run_alarm(alarm=Alarm(title='11', time_str='07:00', selected_days={0}, enabled=True, id='e161595d-5f5f-42cf-a5a2-939b023248d0')) (last run: [never], next run: 2025-04-28 07:00:00)]
+2025-04-27 18:41:58,120 - INFO - [MainThread] - 알람 저장 및 리스케줄 완료.
+2025-04-27 18:42:01,168 - INFO - [MainThread] - 알람 삭제 시작: 🔔 07:00 - 11 [Mon, Tue]
+2025-04-27 18:42:01,168 - INFO - [MainThread] - 알람 삭제 완료: ID c4d5aac8-7ffc-4a9a-8b95-1fc604537093
+2025-04-27 18:42:01,169 - INFO - [MainThread] - UI로부터 알람 삭제 시그널 수신: ID c4d5aac8-7ffc-4a9a-8b95-1fc604537093
+2025-04-27 18:42:01,169 - INFO - [MainThread] - 알람 ID 'c4d5aac8-7ffc-4a9a-8b95-1fc604537093' 스케줄 제거 완료.
+2025-04-27 18:42:01,169 - INFO - [MainThread] - 제거 후 현재 스케줄된 작업 (8개): [Every 1 week at 18:23:00 do run_alarm(alarm=Alarm(title='1', time_str='18:23', selected_days={0, 1, 2, 3, 4, 5, 6}, enabled=True, id='f284d0f1-98fd-4de3-88c2-1a0a1b38cdf5')) (last run: [never], next run: 2025-04-28 18:23:00), Every 1 week at 18:23:00 do run_alarm(alarm=Alarm(title='1', time_str='18:23', selected_days={0, 1, 2, 3, 4, 5, 6}, enabled=True, id='f284d0f1-98fd-4de3-88c2-1a0a1b38cdf5')) (last run: [never], next run: 2025-04-29 18:23:00), Every 1 week at 18:23:00 do run_alarm(alarm=Alarm(title='1', time_str='18:23', selected_days={0, 1, 2, 3, 4, 5, 6}, enabled=True, id='f284d0f1-98fd-4de3-88c2-1a0a1b38cdf5')) (last run: [never], next run: 2025-04-30 18:23:00), Every 1 week at 18:23:00 do run_alarm(alarm=Alarm(title='1', time_str='18:23', selected_days={0, 1, 2, 3, 4, 5, 6}, enabled=True, id='f284d0f1-98fd-4de3-88c2-1a0a1b38cdf5')) (last run: [never], next run: 2025-05-01 18:23:00), Every 1 week at 18:23:00 do run_alarm(alarm=Alarm(title='1', time_str='18:23', selected_days={0, 1, 2, 3, 4, 5, 6}, enabled=True, id='f284d0f1-98fd-4de3-88c2-1a0a1b38cdf5')) (last run: [never], next run: 2025-05-02 18:23:00), Every 1 week at 18:23:00 do run_alarm(alarm=Alarm(title='1', time_str='18:23', selected_days={0, 1, 2, 3, 4, 5, 6}, enabled=True, id='f284d0f1-98fd-4de3-88c2-1a0a1b38cdf5')) (last run: [never], next run: 2025-05-03 18:23:00), Every 1 week at 18:23:00 do run_alarm(alarm=Alarm(title='1', time_str='18:23', selected_days={0, 1, 2, 3, 4, 5, 6}, enabled=True, id='f284d0f1-98fd-4de3-88c2-1a0a1b38cdf5')) (last run: [never], next run: 2025-05-04 18:23:00), Every 1 week at 07:00:00 do run_alarm(alarm=Alarm(title='11', time_str='07:00', selected_days={0}, enabled=True, id='e161595d-5f5f-42cf-a5a2-939b023248d0')) (last run: [never], next run: 2025-04-28 07:00:00)]
+2025-04-27 18:42:01,170 - INFO - [MainThread] - 삭제된 알람 ID c4d5aac8-7ffc-4a9a-8b95-1fc604537093 스케줄 제거 완료.
+2025-04-27 18:42:03,300 - INFO - [MainThread] - 알람 삭제 시작: 🔔 07:00 - 11 [Mon]
+2025-04-27 18:42:03,301 - INFO - [MainThread] - 알람 삭제 완료: ID e161595d-5f5f-42cf-a5a2-939b023248d0
+2025-04-27 18:42:03,301 - INFO - [MainThread] - UI로부터 알람 삭제 시그널 수신: ID e161595d-5f5f-42cf-a5a2-939b023248d0
+2025-04-27 18:42:03,301 - INFO - [MainThread] - 알람 ID 'e161595d-5f5f-42cf-a5a2-939b023248d0' 스케줄 제거 완료.
+2025-04-27 18:42:03,302 - INFO - [MainThread] - 제거 후 현재 스케줄된 작업 (7개): [Every 1 week at 18:23:00 do run_alarm(alarm=Alarm(title='1', time_str='18:23', selected_days={0, 1, 2, 3, 4, 5, 6}, enabled=True, id='f284d0f1-98fd-4de3-88c2-1a0a1b38cdf5')) (last run: [never], next run: 2025-04-28 18:23:00), Every 1 week at 18:23:00 do run_alarm(alarm=Alarm(title='1', time_str='18:23', selected_days={0, 1, 2, 3, 4, 5, 6}, enabled=True, id='f284d0f1-98fd-4de3-88c2-1a0a1b38cdf5')) (last run: [never], next run: 2025-04-29 18:23:00), Every 1 week at 18:23:00 do run_alarm(alarm=Alarm(title='1', time_str='18:23', selected_days={0, 1, 2, 3, 4, 5, 6}, enabled=True, id='f284d0f1-98fd-4de3-88c2-1a0a1b38cdf5')) (last run: [never], next run: 2025-04-30 18:23:00), Every 1 week at 18:23:00 do run_alarm(alarm=Alarm(title='1', time_str='18:23', selected_days={0, 1, 2, 3, 4, 5, 6}, enabled=True, id='f284d0f1-98fd-4de3-88c2-1a0a1b38cdf5')) (last run: [never], next run: 2025-05-01 18:23:00), Every 1 week at 18:23:00 do run_alarm(alarm=Alarm(title='1', time_str='18:23', selected_days={0, 1, 2, 3, 4, 5, 6}, enabled=True, id='f284d0f1-98fd-4de3-88c2-1a0a1b38cdf5')) (last run: [never], next run: 2025-05-02 18:23:00), Every 1 week at 18:23:00 do run_alarm(alarm=Alarm(title='1', time_str='18:23', selected_days={0, 1, 2, 3, 4, 5, 6}, enabled=True, id='f284d0f1-98fd-4de3-88c2-1a0a1b38cdf5')) (last run: [never], next run: 2025-05-03 18:23:00), Every 1 week at 18:23:00 do run_alarm(alarm=Alarm(title='1', time_str='18:23', selected_days={0, 1, 2, 3, 4, 5, 6}, enabled=True, id='f284d0f1-98fd-4de3-88c2-1a0a1b38cdf5')) (last run: [never], next run: 2025-05-04 18:23:00)]
+2025-04-27 18:42:03,303 - INFO - [MainThread] - 삭제된 알람 ID e161595d-5f5f-42cf-a5a2-939b023248d0 스케줄 제거 완료.
+2025-04-27 18:42:05,429 - INFO - [MainThread] - 알람 삭제 시작: 🔔 18:23 - 1 [Daily]
+2025-04-27 18:42:05,429 - INFO - [MainThread] - 알람 삭제 완료: ID f284d0f1-98fd-4de3-88c2-1a0a1b38cdf5
+2025-04-27 18:42:05,429 - INFO - [MainThread] - UI로부터 알람 삭제 시그널 수신: ID f284d0f1-98fd-4de3-88c2-1a0a1b38cdf5
+2025-04-27 18:42:05,430 - INFO - [MainThread] - 알람 ID 'f284d0f1-98fd-4de3-88c2-1a0a1b38cdf5' 스케줄 제거 완료.
+2025-04-27 18:42:05,430 - INFO - [MainThread] - 제거 후 현재 스케줄된 작업 (0개): []
+2025-04-27 18:42:05,430 - INFO - [MainThread] - 삭제된 알람 ID f284d0f1-98fd-4de3-88c2-1a0a1b38cdf5 스케줄 제거 완료.
+2025-04-27 18:42:26,265 - INFO - [MainThread] - 새 알람 추가됨: 🔔 07:00 - 약먹을시간
+2025-04-27 18:42:26,265 - INFO - [MainThread] - UI로부터 알람 업데이트 시그널 수신. 총 1개.
+2025-04-27 18:42:26,267 - INFO - [MainThread] - 알람 ID 7c353119-5538-4f77-9bf0-3907354bdc76 스케줄 업데이트/추가 요청.
+2025-04-27 18:42:26,267 - INFO - [MainThread] - 알람 '약먹을시간' (7c353119-5538-4f77-9bf0-3907354bdc76) 스케줄 업데이트 중: 기존 작업 제거 완료.
+2025-04-27 18:42:26,267 - INFO - [MainThread] -   -> One-time at 07:00 스케줄됨 (Tag: 7c353119-5538-4f77-9bf0-3907354bdc76)
+2025-04-27 18:42:26,268 - INFO - [MainThread] - 알람 '약먹을시간' 스케줄 완료 (1개 작업 등록). 반복: One-time
+2025-04-27 18:42:26,268 - INFO - [MainThread] - 업데이트 후 현재 스케줄된 작업 (1개): [Every 1 day at 07:00:00 do run_alarm(alarm=Alarm(title='약먹을시간', time_str='07:00', selected_days=set(), enabled=True, id='7c353119-5538-4f77-9bf0-3907354bdc76')) (last run: [never], next run: 2025-04-28 07:00:00)]
+2025-04-27 18:42:26,268 - INFO - [MainThread] - 알람 저장 및 리스케줄 완료.
+2025-04-27 18:42:51,061 - INFO - [MainThread] - 알람 활성화 상태 변경: 약먹을시간 -> Disabled
+2025-04-27 18:42:51,062 - INFO - [MainThread] - UI로부터 알람 업데이트 시그널 수신. 총 1개.
+2025-04-27 18:42:51,063 - INFO - [MainThread] - 알람 ID 7c353119-5538-4f77-9bf0-3907354bdc76 스케줄 업데이트/추가 요청.
+2025-04-27 18:42:51,063 - INFO - [MainThread] - 알람 '약먹을시간' (7c353119-5538-4f77-9bf0-3907354bdc76) 스케줄 업데이트 중: 기존 작업 제거 완료.
+2025-04-27 18:42:51,063 - INFO - [MainThread] - 알람 '약먹을시간' (7c353119-5538-4f77-9bf0-3907354bdc76)이(가) 비활성화 상태이므로 스케줄하지 않음.
+2025-04-27 18:42:51,064 - INFO - [MainThread] - 업데이트 후 현재 스케줄된 작업 (0개): []
+2025-04-27 18:42:51,064 - INFO - [MainThread] - 알람 저장 및 리스케줄 완료.
+2025-04-27 18:42:53,656 - INFO - [MainThread] - 알람 활성화 상태 변경: 약먹을시간 -> Enabled
+2025-04-27 18:42:53,657 - INFO - [MainThread] - UI로부터 알람 업데이트 시그널 수신. 총 1개.
+2025-04-27 18:42:53,658 - INFO - [MainThread] - 알람 ID 7c353119-5538-4f77-9bf0-3907354bdc76 스케줄 업데이트/추가 요청.
+2025-04-27 18:42:53,658 - INFO - [MainThread] - 알람 '약먹을시간' (7c353119-5538-4f77-9bf0-3907354bdc76) 스케줄 업데이트 중: 기존 작업 제거 완료.
+2025-04-27 18:42:53,658 - INFO - [MainThread] -   -> One-time at 07:00 스케줄됨 (Tag: 7c353119-5538-4f77-9bf0-3907354bdc76)
+2025-04-27 18:42:53,659 - INFO - [MainThread] - 알람 '약먹을시간' 스케줄 완료 (1개 작업 등록). 반복: One-time
+2025-04-27 18:42:53,659 - INFO - [MainThread] - 업데이트 후 현재 스케줄된 작업 (1개): [Every 1 day at 07:00:00 do run_alarm(alarm=Alarm(title='약먹을시간', time_str='07:00', selected_days=set(), enabled=True, id='7c353119-5538-4f77-9bf0-3907354bdc76')) (last run: [never], next run: 2025-04-28 07:00:00)]
+2025-04-27 18:42:53,659 - INFO - [MainThread] - 알람 저장 및 리스케줄 완료.
+2025-04-27 18:42:56,994 - INFO - [MainThread] - 알람 수정 모드 진입: 🔔 07:00 - 약먹을시간
+2025-04-27 18:43:05,031 - INFO - [MainThread] - 알람 수정 시작: ID 7c353119-5538-4f77-9bf0-3907354bdc76, 이전 값: 🔔 07:00 - 약먹을시간
+2025-04-27 18:43:05,032 - INFO - [MainThread] - 알람 수정 완료: ID 7c353119-5538-4f77-9bf0-3907354bdc76, 새 값: 🔔 04:03 - 약먹을시간
+2025-04-27 18:43:05,032 - INFO - [MainThread] - UI로부터 알람 업데이트 시그널 수신. 총 1개.
+2025-04-27 18:43:05,033 - INFO - [MainThread] - 알람 ID 7c353119-5538-4f77-9bf0-3907354bdc76 스케줄 업데이트/추가 요청.
+2025-04-27 18:43:05,034 - INFO - [MainThread] - 알람 '약먹을시간' (7c353119-5538-4f77-9bf0-3907354bdc76) 스케줄 업데이트 중: 기존 작업 제거 완료.
+2025-04-27 18:43:05,034 - INFO - [MainThread] -   -> One-time at 04:03 스케줄됨 (Tag: 7c353119-5538-4f77-9bf0-3907354bdc76)
+2025-04-27 18:43:05,034 - INFO - [MainThread] - 알람 '약먹을시간' 스케줄 완료 (1개 작업 등록). 반복: One-time
+2025-04-27 18:43:05,034 - INFO - [MainThread] - 업데이트 후 현재 스케줄된 작업 (1개): [Every 1 day at 04:03:00 do run_alarm(alarm=Alarm(title='약먹을시간', time_str='04:03', selected_days=set(), enabled=True, id='7c353119-5538-4f77-9bf0-3907354bdc76')) (last run: [never], next run: 2025-04-28 04:03:00)]
+2025-04-27 18:43:05,035 - INFO - [MainThread] - 알람 저장 및 리스케줄 완료.
+2025-04-27 18:43:05,036 - INFO - [MainThread] - 수정 모드 취소됨.
+2025-04-27 18:43:11,562 - INFO - [MainThread] - 애플리케이션 종료 시퀀스 시작.
+2025-04-27 18:43:11,563 - INFO - [MainThread] - 스케줄러 중지 시도...
+2025-04-27 18:43:11,564 - INFO - [MainThread] - 스케줄러 중지 요청됨.
+2025-04-27 18:43:11,565 - INFO - [MainThread] - 애플리케이션 종료 완료.
+2025-04-27 18:43:11,565 - INFO - [MainThread] - PyQt5 애플리케이션 이벤트 루프 종료. 종료 코드: 0
+2025-04-27 18:44:57,943 - INFO - [MainThread] - 로깅 설정 완료.
+2025-04-27 18:44:57,944 - INFO - [MainThread] - 1개의 알람 로드 완료.
+2025-04-27 18:44:57,944 - INFO - [MainThread] - 기존 스케줄 클리어됨. 1개의 알람 스케줄링 시작.
+2025-04-27 18:44:57,945 - INFO - [MainThread] -   -> One-time at 04:03 스케줄됨 (Tag: 7c353119-5538-4f77-9bf0-3907354bdc76)
+2025-04-27 18:44:57,945 - INFO - [MainThread] - 알람 '약먹을시간' 스케줄 완료 (1개 작업 등록). 반복: One-time
+2025-04-27 18:44:57,945 - INFO - [MainThread] - 모든 활성 알람 스케줄링 완료.
+2025-04-27 18:44:57,945 - INFO - [MainThread] - 현재 스케줄된 작업 (1개): [Every 1 day at 04:03:00 do run_alarm(alarm=Alarm(title='약먹을시간', time_str='04:03', selected_days=set(), enabled=True, id='7c353119-5538-4f77-9bf0-3907354bdc76')) (last run: [never], next run: 2025-04-28 04:03:00)]
+2025-04-27 18:44:57,946 - INFO - [Thread-1 (run_continuously)] - 스케줄러 백그라운드 스레드 시작.
+2025-04-27 18:44:57,946 - INFO - [MainThread] - 스케줄러 시작 및 백그라운드 스레드 실행됨.
+2025-04-27 18:44:58,604 - INFO - [MainThread] - PyQt5 애플리케이션 이벤트 루프 시작.
+2025-04-27 18:45:06,544 - INFO - [MainThread] - 애플리케이션 종료 시퀀스 시작.
+2025-04-27 18:45:06,545 - INFO - [MainThread] - 스케줄러 중지 시도...
+2025-04-27 18:45:06,545 - INFO - [MainThread] - 스케줄러 중지 요청됨.
+2025-04-27 18:45:06,546 - INFO - [MainThread] - 애플리케이션 종료 완료.
+2025-04-27 18:45:06,546 - INFO - [MainThread] - PyQt5 애플리케이션 이벤트 루프 종료. 종료 코드: 0
+2025-04-27 18:46:54,200 - INFO - [MainThread] - 로깅 설정 완료.
+2025-04-27 18:46:54,201 - INFO - [MainThread] - 1개의 알람 로드 완료.
+2025-04-27 18:46:54,201 - INFO - [MainThread] - 기존 스케줄 클리어됨. 1개의 알람 스케줄링 시작.
+2025-04-27 18:46:54,202 - INFO - [MainThread] -   -> One-time at 04:03 스케줄됨 (Tag: 7c353119-5538-4f77-9bf0-3907354bdc76)
+2025-04-27 18:46:54,202 - INFO - [MainThread] - 알람 '약먹을시간' 스케줄 완료 (1개 작업 등록). 반복: One-time
+2025-04-27 18:46:54,202 - INFO - [MainThread] - 모든 활성 알람 스케줄링 완료.
+2025-04-27 18:46:54,203 - INFO - [MainThread] - 현재 스케줄된 작업 (1개): [Every 1 day at 04:03:00 do run_alarm(alarm=Alarm(title='약먹을시간', time_str='04:03', selected_days=set(), enabled=True, id='7c353119-5538-4f77-9bf0-3907354bdc76')) (last run: [never], next run: 2025-04-28 04:03:00)]
+2025-04-27 18:46:54,205 - INFO - [Thread-1 (run_continuously)] - 스케줄러 백그라운드 스레드 시작.
+2025-04-27 18:46:54,206 - INFO - [MainThread] - 스케줄러 시작 및 백그라운드 스레드 실행됨.
+2025-04-27 18:46:54,862 - INFO - [MainThread] - PyQt5 애플리케이션 이벤트 루프 시작.
+2025-04-27 18:47:14,390 - INFO - [MainThread] - 애플리케이션 종료 시퀀스 시작.
+2025-04-27 18:47:14,391 - INFO - [MainThread] - 스케줄러 중지 시도...
+2025-04-27 18:47:14,391 - INFO - [MainThread] - 스케줄러 중지 요청됨.
+2025-04-27 18:47:14,391 - INFO - [MainThread] - 애플리케이션 종료 완료.
+2025-04-27 18:47:14,392 - INFO - [MainThread] - PyQt5 애플리케이션 이벤트 루프 종료. 종료 코드: 0
+2025-04-27 18:48:03,178 - INFO - [MainThread] - 로깅 설정 완료.
+2025-04-27 18:48:03,179 - INFO - [MainThread] - 1개의 알람 로드 완료.
+2025-04-27 18:48:03,179 - INFO - [MainThread] - 기존 스케줄 클리어됨. 1개의 알람 스케줄링 시작.
+2025-04-27 18:48:03,180 - INFO - [MainThread] -   -> One-time at 04:03 스케줄됨 (Tag: 7c353119-5538-4f77-9bf0-3907354bdc76)
+2025-04-27 18:48:03,180 - INFO - [MainThread] - 알람 '약먹을시간' 스케줄 완료 (1개 작업 등록). 반복: One-time
+2025-04-27 18:48:03,180 - INFO - [MainThread] - 모든 활성 알람 스케줄링 완료.
+2025-04-27 18:48:03,181 - INFO - [MainThread] - 현재 스케줄된 작업 (1개): [Every 1 day at 04:03:00 do run_alarm(alarm=Alarm(title='약먹을시간', time_str='04:03', selected_days=set(), enabled=True, id='7c353119-5538-4f77-9bf0-3907354bdc76')) (last run: [never], next run: 2025-04-28 04:03:00)]
+2025-04-27 18:48:03,182 - INFO - [Thread-1 (run_continuously)] - 스케줄러 백그라운드 스레드 시작.
+2025-04-27 18:48:03,182 - INFO - [MainThread] - 스케줄러 시작 및 백그라운드 스레드 실행됨.
+2025-04-27 18:48:04,189 - INFO - [MainThread] - PyQt5 애플리케이션 이벤트 루프 시작.
+2025-04-27 18:48:16,651 - INFO - [MainThread] - 애플리케이션 종료 시퀀스 시작.
+2025-04-27 18:48:16,651 - INFO - [MainThread] - 스케줄러 중지 시도...
+2025-04-27 18:48:16,651 - INFO - [MainThread] - 스케줄러 중지 요청됨.
+2025-04-27 18:48:16,652 - INFO - [MainThread] - 애플리케이션 종료 완료.
+2025-04-27 18:48:16,652 - INFO - [MainThread] - PyQt5 애플리케이션 이벤트 루프 종료. 종료 코드: 0
+2025-04-27 18:48:52,694 - INFO - [MainThread] - 로깅 설정 완료.
+2025-04-27 18:48:52,695 - INFO - [MainThread] - 1개의 알람 로드 완료.
+2025-04-27 18:48:52,695 - INFO - [MainThread] - 기존 스케줄 클리어됨. 1개의 알람 스케줄링 시작.
+2025-04-27 18:48:52,696 - INFO - [MainThread] -   -> One-time at 04:03 스케줄됨 (Tag: 7c353119-5538-4f77-9bf0-3907354bdc76)
+2025-04-27 18:48:52,696 - INFO - [MainThread] - 알람 '약먹을시간' 스케줄 완료 (1개 작업 등록). 반복: One-time
+2025-04-27 18:48:52,697 - INFO - [MainThread] - 모든 활성 알람 스케줄링 완료.
+2025-04-27 18:48:52,697 - INFO - [MainThread] - 현재 스케줄된 작업 (1개): [Every 1 day at 04:03:00 do run_alarm(alarm=Alarm(title='약먹을시간', time_str='04:03', selected_days=set(), enabled=True, id='7c353119-5538-4f77-9bf0-3907354bdc76')) (last run: [never], next run: 2025-04-28 04:03:00)]
+2025-04-27 18:48:52,698 - INFO - [Thread-1 (run_continuously)] - 스케줄러 백그라운드 스레드 시작.
+2025-04-27 18:48:52,698 - INFO - [MainThread] - 스케줄러 시작 및 백그라운드 스레드 실행됨.
+2025-04-27 18:48:53,362 - INFO - [MainThread] - PyQt5 애플리케이션 이벤트 루프 시작.
+2025-04-27 18:49:00,187 - INFO - [MainThread] - 애플리케이션 종료 시퀀스 시작.
+2025-04-27 18:49:00,188 - INFO - [MainThread] - 스케줄러 중지 시도...
+2025-04-27 18:49:00,189 - INFO - [MainThread] - 스케줄러 중지 요청됨.
+2025-04-27 18:49:00,189 - INFO - [MainThread] - 애플리케이션 종료 완료.
+2025-04-27 18:49:00,189 - INFO - [MainThread] - PyQt5 애플리케이션 이벤트 루프 종료. 종료 코드: 0
+2025-04-27 18:49:58,895 - INFO - [MainThread] - 로깅 설정 완료.
+2025-04-27 18:49:58,896 - INFO - [MainThread] - 1개의 알람 로드 완료.
+2025-04-27 18:49:58,896 - INFO - [MainThread] - 기존 스케줄 클리어됨. 1개의 알람 스케줄링 시작.
+2025-04-27 18:49:58,896 - INFO - [MainThread] -   -> One-time at 04:03 스케줄됨 (Tag: 7c353119-5538-4f77-9bf0-3907354bdc76)
+2025-04-27 18:49:58,897 - INFO - [MainThread] - 알람 '약먹을시간' 스케줄 완료 (1개 작업 등록). 반복: One-time
+2025-04-27 18:49:58,897 - INFO - [MainThread] - 모든 활성 알람 스케줄링 완료.
+2025-04-27 18:49:58,897 - INFO - [MainThread] - 현재 스케줄된 작업 (1개): [Every 1 day at 04:03:00 do run_alarm(alarm=Alarm(title='약먹을시간', time_str='04:03', selected_days=set(), enabled=True, id='7c353119-5538-4f77-9bf0-3907354bdc76')) (last run: [never], next run: 2025-04-28 04:03:00)]
+2025-04-27 18:49:58,898 - INFO - [Thread-1 (run_continuously)] - 스케줄러 백그라운드 스레드 시작.
+2025-04-27 18:49:58,899 - INFO - [MainThread] - 스케줄러 시작 및 백그라운드 스레드 실행됨.
+2025-04-27 18:49:59,515 - INFO - [MainThread] - PyQt5 애플리케이션 이벤트 루프 시작.
+2025-04-27 18:50:08,973 - INFO - [MainThread] - 애플리케이션 종료 시퀀스 시작.
+2025-04-27 18:50:08,974 - INFO - [MainThread] - 스케줄러 중지 시도...
+2025-04-27 18:50:08,974 - INFO - [MainThread] - 스케줄러 중지 요청됨.
+2025-04-27 18:50:08,974 - INFO - [MainThread] - 애플리케이션 종료 완료.
+2025-04-27 18:50:08,974 - INFO - [MainThread] - PyQt5 애플리케이션 이벤트 루프 종료. 종료 코드: 0
+2025-04-27 18:51:05,417 - INFO - [MainThread] - 로깅 설정 완료.
+2025-04-27 18:51:05,418 - INFO - [MainThread] - 1개의 알람 로드 완료.
+2025-04-27 18:51:05,419 - INFO - [MainThread] - 기존 스케줄 클리어됨. 1개의 알람 스케줄링 시작.
+2025-04-27 18:51:05,420 - INFO - [MainThread] -   -> One-time at 04:03 스케줄됨 (Tag: 7c353119-5538-4f77-9bf0-3907354bdc76)
+2025-04-27 18:51:05,420 - INFO - [MainThread] - 알람 '약먹을시간' 스케줄 완료 (1개 작업 등록). 반복: One-time
+2025-04-27 18:51:05,421 - INFO - [MainThread] - 모든 활성 알람 스케줄링 완료.
+2025-04-27 18:51:05,421 - INFO - [MainThread] - 현재 스케줄된 작업 (1개): [Every 1 day at 04:03:00 do run_alarm(alarm=Alarm(title='약먹을시간', time_str='04:03', selected_days=set(), enabled=True, id='7c353119-5538-4f77-9bf0-3907354bdc76')) (last run: [never], next run: 2025-04-28 04:03:00)]
+2025-04-27 18:51:05,422 - INFO - [Thread-1 (run_continuously)] - 스케줄러 백그라운드 스레드 시작.
+2025-04-27 18:51:05,422 - INFO - [MainThread] - 스케줄러 시작 및 백그라운드 스레드 실행됨.
+2025-04-27 18:51:06,030 - INFO - [MainThread] - PyQt5 애플리케이션 이벤트 루프 시작.
+2025-04-27 18:51:12,627 - INFO - [MainThread] - 애플리케이션 종료 시퀀스 시작.
+2025-04-27 18:51:12,628 - INFO - [MainThread] - 스케줄러 중지 시도...
+2025-04-27 18:51:12,628 - INFO - [MainThread] - 스케줄러 중지 요청됨.
+2025-04-27 18:51:12,628 - INFO - [MainThread] - 애플리케이션 종료 완료.
+2025-04-27 18:51:12,629 - INFO - [MainThread] - PyQt5 애플리케이션 이벤트 루프 종료. 종료 코드: 0
+2025-04-27 18:51:58,089 - INFO - [MainThread] - 로깅 설정 완료.
+2025-04-27 18:51:58,093 - INFO - [MainThread] - 1개의 알람 로드 완료.
+2025-04-27 18:51:58,094 - INFO - [MainThread] - 기존 스케줄 클리어됨. 1개의 알람 스케줄링 시작.
+2025-04-27 18:51:58,095 - INFO - [MainThread] -   -> One-time at 04:03 스케줄됨 (Tag: 7c353119-5538-4f77-9bf0-3907354bdc76)
+2025-04-27 18:51:58,095 - INFO - [MainThread] - 알람 '약먹을시간' 스케줄 완료 (1개 작업 등록). 반복: One-time
+2025-04-27 18:51:58,096 - INFO - [MainThread] - 모든 활성 알람 스케줄링 완료.
+2025-04-27 18:51:58,096 - INFO - [MainThread] - 현재 스케줄된 작업 (1개): [Every 1 day at 04:03:00 do run_alarm(alarm=Alarm(title='약먹을시간', time_str='04:03', selected_days=set(), enabled=True, id='7c353119-5538-4f77-9bf0-3907354bdc76')) (last run: [never], next run: 2025-04-28 04:03:00)]
+2025-04-27 18:51:58,098 - INFO - [Thread-1 (run_continuously)] - 스케줄러 백그라운드 스레드 시작.
+2025-04-27 18:51:58,098 - INFO - [MainThread] - 스케줄러 시작 및 백그라운드 스레드 실행됨.
+2025-04-27 18:51:58,716 - INFO - [MainThread] - PyQt5 애플리케이션 이벤트 루프 시작.
+2025-04-27 18:52:06,878 - INFO - [MainThread] - 애플리케이션 종료 시퀀스 시작.
+2025-04-27 18:52:06,878 - INFO - [MainThread] - 스케줄러 중지 시도...
+2025-04-27 18:52:06,879 - INFO - [MainThread] - 스케줄러 중지 요청됨.
+2025-04-27 18:52:06,879 - INFO - [MainThread] - 애플리케이션 종료 완료.
+2025-04-27 18:52:06,879 - INFO - [MainThread] - PyQt5 애플리케이션 이벤트 루프 종료. 종료 코드: 0
+2025-04-27 18:52:25,095 - INFO - [MainThread] - 로깅 설정 완료.
+2025-04-27 18:52:25,095 - INFO - [MainThread] - 1개의 알람 로드 완료.
+2025-04-27 18:52:25,096 - INFO - [MainThread] - 기존 스케줄 클리어됨. 1개의 알람 스케줄링 시작.
+2025-04-27 18:52:25,096 - INFO - [MainThread] -   -> One-time at 04:03 스케줄됨 (Tag: 7c353119-5538-4f77-9bf0-3907354bdc76)
+2025-04-27 18:52:25,096 - INFO - [MainThread] - 알람 '약먹을시간' 스케줄 완료 (1개 작업 등록). 반복: One-time
+2025-04-27 18:52:25,097 - INFO - [MainThread] - 모든 활성 알람 스케줄링 완료.
+2025-04-27 18:52:25,097 - INFO - [MainThread] - 현재 스케줄된 작업 (1개): [Every 1 day at 04:03:00 do run_alarm(alarm=Alarm(title='약먹을시간', time_str='04:03', selected_days=set(), enabled=True, id='7c353119-5538-4f77-9bf0-3907354bdc76')) (last run: [never], next run: 2025-04-28 04:03:00)]
+2025-04-27 18:52:25,098 - INFO - [Thread-1 (run_continuously)] - 스케줄러 백그라운드 스레드 시작.
+2025-04-27 18:52:25,098 - INFO - [MainThread] - 스케줄러 시작 및 백그라운드 스레드 실행됨.
+2025-04-27 18:52:25,709 - INFO - [MainThread] - PyQt5 애플리케이션 이벤트 루프 시작.
+2025-04-27 18:52:28,077 - INFO - [MainThread] - 애플리케이션 종료 시퀀스 시작.
+2025-04-27 18:52:28,077 - INFO - [MainThread] - 스케줄러 중지 시도...
+2025-04-27 18:52:28,077 - INFO - [MainThread] - 스케줄러 중지 요청됨.
+2025-04-27 18:52:28,078 - INFO - [MainThread] - 애플리케이션 종료 완료.
+2025-04-27 18:52:28,078 - INFO - [MainThread] - PyQt5 애플리케이션 이벤트 루프 종료. 종료 코드: 0
+2025-04-27 18:52:34,559 - INFO - [MainThread] - 로깅 설정 완료.
+2025-04-27 18:52:34,561 - INFO - [MainThread] - 1개의 알람 로드 완료.
+2025-04-27 18:52:34,561 - INFO - [MainThread] - 기존 스케줄 클리어됨. 1개의 알람 스케줄링 시작.
+2025-04-27 18:52:34,562 - INFO - [MainThread] -   -> One-time at 04:03 스케줄됨 (Tag: 7c353119-5538-4f77-9bf0-3907354bdc76)
+2025-04-27 18:52:34,563 - INFO - [MainThread] - 알람 '약먹을시간' 스케줄 완료 (1개 작업 등록). 반복: One-time
+2025-04-27 18:52:34,563 - INFO - [MainThread] - 모든 활성 알람 스케줄링 완료.
+2025-04-27 18:52:34,563 - INFO - [MainThread] - 현재 스케줄된 작업 (1개): [Every 1 day at 04:03:00 do run_alarm(alarm=Alarm(title='약먹을시간', time_str='04:03', selected_days=set(), enabled=True, id='7c353119-5538-4f77-9bf0-3907354bdc76')) (last run: [never], next run: 2025-04-28 04:03:00)]
+2025-04-27 18:52:34,565 - INFO - [Thread-1 (run_continuously)] - 스케줄러 백그라운드 스레드 시작.
+2025-04-27 18:52:34,566 - INFO - [MainThread] - 스케줄러 시작 및 백그라운드 스레드 실행됨.
+2025-04-27 18:52:35,191 - INFO - [MainThread] - PyQt5 애플리케이션 이벤트 루프 시작.
+2025-04-27 18:52:37,034 - INFO - [MainThread] - 애플리케이션 종료 시퀀스 시작.
+2025-04-27 18:52:37,034 - INFO - [MainThread] - 스케줄러 중지 시도...
+2025-04-27 18:52:37,035 - INFO - [MainThread] - 스케줄러 중지 요청됨.
+2025-04-27 18:52:37,036 - INFO - [MainThread] - 애플리케이션 종료 완료.
+2025-04-27 18:52:37,036 - INFO - [MainThread] - PyQt5 애플리케이션 이벤트 루프 종료. 종료 코드: 0
+2025-04-27 18:52:50,490 - INFO - [MainThread] - 로깅 설정 완료.
+2025-04-27 18:52:50,491 - INFO - [MainThread] - 1개의 알람 로드 완료.
+2025-04-27 18:52:50,492 - INFO - [MainThread] - 기존 스케줄 클리어됨. 1개의 알람 스케줄링 시작.
+2025-04-27 18:52:50,493 - INFO - [MainThread] -   -> One-time at 04:03 스케줄됨 (Tag: 7c353119-5538-4f77-9bf0-3907354bdc76)
+2025-04-27 18:52:50,493 - INFO - [MainThread] - 알람 '약먹을시간' 스케줄 완료 (1개 작업 등록). 반복: One-time
+2025-04-27 18:52:50,493 - INFO - [MainThread] - 모든 활성 알람 스케줄링 완료.
+2025-04-27 18:52:50,494 - INFO - [MainThread] - 현재 스케줄된 작업 (1개): [Every 1 day at 04:03:00 do run_alarm(alarm=Alarm(title='약먹을시간', time_str='04:03', selected_days=set(), enabled=True, id='7c353119-5538-4f77-9bf0-3907354bdc76')) (last run: [never], next run: 2025-04-28 04:03:00)]
+2025-04-27 18:52:50,495 - INFO - [Thread-1 (run_continuously)] - 스케줄러 백그라운드 스레드 시작.
+2025-04-27 18:52:50,496 - INFO - [MainThread] - 스케줄러 시작 및 백그라운드 스레드 실행됨.
+2025-04-27 18:52:51,212 - INFO - [MainThread] - PyQt5 애플리케이션 이벤트 루프 시작.
+2025-04-27 18:52:53,731 - INFO - [MainThread] - 애플리케이션 종료 시퀀스 시작.
+2025-04-27 18:52:53,731 - INFO - [MainThread] - 스케줄러 중지 시도...
+2025-04-27 18:52:53,732 - INFO - [MainThread] - 스케줄러 중지 요청됨.
+2025-04-27 18:52:53,732 - INFO - [MainThread] - 애플리케이션 종료 완료.
+2025-04-27 18:52:53,732 - INFO - [MainThread] - PyQt5 애플리케이션 이벤트 루프 종료. 종료 코드: 0
+2025-04-27 18:52:58,538 - INFO - [MainThread] - 로깅 설정 완료.
+2025-04-27 18:52:58,539 - INFO - [MainThread] - 1개의 알람 로드 완료.
+2025-04-27 18:52:58,540 - INFO - [MainThread] - 기존 스케줄 클리어됨. 1개의 알람 스케줄링 시작.
+2025-04-27 18:52:58,540 - INFO - [MainThread] -   -> One-time at 04:03 스케줄됨 (Tag: 7c353119-5538-4f77-9bf0-3907354bdc76)
+2025-04-27 18:52:58,541 - INFO - [MainThread] - 알람 '약먹을시간' 스케줄 완료 (1개 작업 등록). 반복: One-time
+2025-04-27 18:52:58,541 - INFO - [MainThread] - 모든 활성 알람 스케줄링 완료.
+2025-04-27 18:52:58,541 - INFO - [MainThread] - 현재 스케줄된 작업 (1개): [Every 1 day at 04:03:00 do run_alarm(alarm=Alarm(title='약먹을시간', time_str='04:03', selected_days=set(), enabled=True, id='7c353119-5538-4f77-9bf0-3907354bdc76')) (last run: [never], next run: 2025-04-28 04:03:00)]
+2025-04-27 18:52:58,543 - INFO - [Thread-1 (run_continuously)] - 스케줄러 백그라운드 스레드 시작.
+2025-04-27 18:52:58,543 - INFO - [MainThread] - 스케줄러 시작 및 백그라운드 스레드 실행됨.
+2025-04-27 18:52:59,188 - INFO - [MainThread] - PyQt5 애플리케이션 이벤트 루프 시작.
+2025-04-27 18:53:09,276 - INFO - [MainThread] - 애플리케이션 종료 시퀀스 시작.
+2025-04-27 18:53:09,276 - INFO - [MainThread] - 스케줄러 중지 시도...
+2025-04-27 18:53:09,277 - INFO - [MainThread] - 스케줄러 중지 요청됨.
+2025-04-27 18:53:09,277 - INFO - [MainThread] - 애플리케이션 종료 완료.
+2025-04-27 18:53:09,277 - INFO - [MainThread] - PyQt5 애플리케이션 이벤트 루프 종료. 종료 코드: 0

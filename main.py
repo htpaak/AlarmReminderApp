@@ -49,7 +49,9 @@ def main():
         
         # 스케줄 업데이트 (기존 로직과 유사하게 처리)
         # TODO: 변경된 알람만 효율적으로 찾아 업데이트하는 로직 개선
-        current_scheduled_ids = {job.tags[0] for job in scheduler.schedule.get_jobs() if job.tags and not job.tags[0].startswith('once_')}
+        # current_scheduled_ids = {job.tags[0] for job in scheduler.schedule.get_jobs() if job.tags and not job.tags[0].startswith('once_')}
+        # job.tags는 set이므로 인덱싱 불가. 각 job에는 alarm.id 태그 하나만 있다고 가정.
+        current_scheduled_ids = {next(iter(job.tags)) for job in scheduler.schedule.get_jobs() if job.tags}
         updated_alarm_map = {a.id: a for a in updated_alarms}
         
         ids_to_update_or_add = []

@@ -4,7 +4,8 @@ from typing import List, Callable, Optional, Set
 from PyQt5.QtWidgets import (
     QApplication, QWidget, QVBoxLayout, QHBoxLayout, QFormLayout, 
     QLabel, QLineEdit, QComboBox, QPushButton, QListWidget, 
-    QMessageBox, QListWidgetItem, QFrame, QSizePolicy, QDesktopWidget, QButtonGroup
+    QMessageBox, QListWidgetItem, QFrame, QSizePolicy, QDesktopWidget, QButtonGroup,
+    QListView
 )
 from PyQt5.QtCore import Qt, pyqtSignal, QSize
 from PyQt5.QtGui import QColor, QFont
@@ -28,7 +29,8 @@ class AlarmApp(QWidget):
 
     def initUI(self):
         self.setWindowTitle("Alarm/Reminder App")
-        self.resize(550, 500) # 창 크기 설정
+        self.resize(600, 550) # 너비와 높이 증가
+        self.setMinimumSize(600, 550) # 최소 너비와 높이 설정
         self.center() # 화면 중앙으로 이동시키는 메서드 호출
         self.setStyleSheet("""
             QWidget { 
@@ -37,11 +39,13 @@ class AlarmApp(QWidget):
                 font-size: 10pt; 
             }
             QLabel { background-color: transparent; }
+            /* QComboBox 스타일 복원 (padding 제외, min-width 추가) */
             QLineEdit, QComboBox { 
-                padding: 5px; 
+                /* padding: 5px; */ /* 패딩 제외 */
                 border: 1px solid #c0c0c0; 
                 border-radius: 3px; 
                 background-color: white;
+                min-width: 40px; /* 최소 너비 지정 */
             }
             QPushButton { 
                 padding: 6px 10px; 
@@ -133,9 +137,11 @@ class AlarmApp(QWidget):
         self.hour_combo = QComboBox()
         self.hour_combo.addItems(hours)
         self.hour_combo.setCurrentText("07")
+        self.hour_combo.setMaxVisibleItems(10) # 최대 표시 항목 수 다시 10으로
         self.minute_combo = QComboBox()
         self.minute_combo.addItems(minutes)
         self.minute_combo.setCurrentText("00")
+        self.minute_combo.setMaxVisibleItems(10) # 최대 표시 항목 수 다시 10으로
         time_layout.addWidget(self.hour_combo)
         time_layout.addWidget(QLabel(":"))
         time_layout.addWidget(self.minute_combo)

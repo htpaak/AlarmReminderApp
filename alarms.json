@@ -1,27 +1,9 @@
 [
     {
-        "id": "f284d0f1-98fd-4de3-88c2-1a0a1b38cdf5",
-        "title": "1",
-        "time_str": "18:23",
-        "selected_days": [
-            0,
-            1,
-            2,
-            3,
-            4,
-            5,
-            6
-        ],
-        "enabled": true
-    },
-    {
-        "id": "c4d5aac8-7ffc-4a9a-8b95-1fc604537093",
-        "title": "11",
-        "time_str": "07:00",
-        "selected_days": [
-            0,
-            1
-        ],
+        "id": "7c353119-5538-4f77-9bf0-3907354bdc76",
+        "title": "약먹을시간",
+        "time_str": "04:03",
+        "selected_days": [],
         "enabled": true
     }
 ]
