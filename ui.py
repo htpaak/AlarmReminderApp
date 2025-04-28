@@ -1,14 +1,16 @@
 import sys
 import logging
+import os # os 모듈 임포트
 from typing import List, Callable, Optional, Set
 from PyQt5.QtWidgets import (
     QApplication, QWidget, QVBoxLayout, QHBoxLayout, QFormLayout, 
     QLabel, QLineEdit, QComboBox, QPushButton, QListWidget, 
     QMessageBox, QListWidgetItem, QFrame, QSizePolicy, QDesktopWidget, QButtonGroup,
-    QListView
+    QListView, QFileDialog
 )
-from PyQt5.QtCore import Qt, pyqtSignal, QSize
+from PyQt5.QtCore import Qt, pyqtSignal, QSize, QUrl
 from PyQt5.QtGui import QColor, QFont, QIcon
+from PyQt5.QtMultimedia import QSoundEffect
 
 from alarm import Alarm, WEEKDAYS
 
@@ -23,6 +25,7 @@ class AlarmApp(QWidget):
         self.selected_alarm: Optional[Alarm] = None
         self.edit_mode = False
         self.day_buttons: List[QPushButton] = [] # 요일 버튼 리스트
+        self.selected_sound_path: Optional[str] = None # UI 임시 저장용 경로 다시 추가
 
         self.initUI()
         self.update_alarm_listwidget()
@@ -172,6 +175,12 @@ class AlarmApp(QWidget):
         form_layout.addRow("Repeat on:", day_button_layout)
         # --- 요일 버튼 끝 --- 
         
+        # --- 사운드 설정 버튼 (폼 내부로 이동) --- 
+        self.form_sound_button = QPushButton("Sound 🔊")
+        self.form_sound_button.clicked.connect(self.select_sound_file)
+        form_layout.addRow("Sound:", self.form_sound_button)
+        # ---------------------------------------
+        
         form_layout_wrapper.addLayout(form_layout)
 
         # 저장/취소 버튼
@@ -203,7 +212,7 @@ class AlarmApp(QWidget):
         self.alarm_listwidget.itemDoubleClicked.connect(self.toggle_alarm_enabled)
         list_layout_wrapper.addWidget(self.alarm_listwidget)
 
-        # 목록 조작 버튼
+        # 목록 조작 버튼 (Sound 버튼 제거)
         list_button_layout = QHBoxLayout()
         self.edit_button = QPushButton("Edit ✏️")
         self.edit_button.clicked.connect(self.edit_alarm)
@@ -233,12 +242,12 @@ class AlarmApp(QWidget):
     def update_alarm_listwidget(self):
         """리스트 위젯을 현재 알람 목록으로 업데이트합니다."""
         self.alarm_listwidget.clear()
-        # 시간 기준으로 정렬하여 표시
         sorted_alarms = sorted(self.alarms, key=lambda a: a.time_str)
+        logging.debug(f"Updating list widget with {len(sorted_alarms)} alarms.")
         for alarm in sorted_alarms:
+            logging.debug(f"  - Creating item for: {alarm} (ID: {alarm.id}, Sound Path: {alarm.sound_path})") 
             item = QListWidgetItem(str(alarm))
-            item.setData(Qt.UserRole, alarm) # 위젯 아이템에 Alarm 객체 저장
-            # 비활성화된 알람은 회색으로 표시
+            item.setData(Qt.UserRole, alarm) 
             if not alarm.enabled:
                 item.setForeground(QColor('grey'))
             self.alarm_listwidget.addItem(item)
@@ -247,7 +256,7 @@ class AlarmApp(QWidget):
 
     def clear_selection(self):
         """리스트 위젯 선택 해제 및 관련 버튼 비활성화"""
-        self.alarm_listwidget.setCurrentItem(None) # 선택 해제
+        self.alarm_listwidget.setCurrentItem(None) 
         self.selected_alarm = None
         self.edit_button.setEnabled(False)
         self.delete_button.setEnabled(False)
@@ -263,7 +272,7 @@ class AlarmApp(QWidget):
             self.toggle_button.setEnabled(False)
             return
 
-        self.selected_alarm = current_item.data(Qt.UserRole) # 저장된 Alarm 객체 가져오기
+        self.selected_alarm = current_item.data(Qt.UserRole) 
         if self.selected_alarm:
             self.edit_button.setEnabled(True)
             self.delete_button.setEnabled(True)
@@ -289,29 +298,38 @@ class AlarmApp(QWidget):
 
         title = self.title_edit.text().strip()
         time_str = f"{self.hour_combo.currentText()}:{self.minute_combo.currentText()}"
-        # 요일 버튼 상태 읽어서 selected_days 설정
         selected_days: Set[int] = set()
         for i, button in enumerate(self.day_buttons):
             if button.isChecked():
-                selected_days.add(i) # 월요일=0, ..., 일요일=6
+                selected_days.add(i)
+        
+        # --- UI의 임시 경로를 알람 객체에 저장 --- 
+        sound_path_to_save = self.selected_sound_path
+        # ----------------------------------------
 
         if self.edit_mode and self.selected_alarm:
             # 수정 모드
             logging.info(f"알람 수정 시작: ID {self.selected_alarm.id}, 이전 값: {self.selected_alarm}")
             self.selected_alarm.title = title
             self.selected_alarm.time_str = time_str
-            self.selected_alarm.selected_days = selected_days # 업데이트
+            self.selected_alarm.selected_days = selected_days
+            self.selected_alarm.sound_path = sound_path_to_save # sound_path 업데이트
             logging.info(f"알람 수정 완료: ID {self.selected_alarm.id}, 새 값: {self.selected_alarm}")
         else:
             # 추가 모드
-            new_alarm = Alarm(title=title, time_str=time_str, selected_days=selected_days)
+            new_alarm = Alarm(
+                title=title, 
+                time_str=time_str, 
+                selected_days=selected_days,
+                sound_path=sound_path_to_save # 새 알람에 sound_path 저장
+            )
             self.alarms.append(new_alarm)
             logging.info(f"새 알람 추가됨: {new_alarm}")
 
-        self.alarms_updated.emit(self.alarms) # 변경 사항 시그널 발생
+        self.alarms_updated.emit(self.alarms) 
         self.update_alarm_listwidget()
-        self.reset_form()
-        self.cancel_edit() # 수정 모드 해제
+        self.reset_form() 
+        self.cancel_edit() 
 
     def edit_alarm(self):
         """선택된 알람을 수정 모드로 전환합니다."""
@@ -323,15 +341,23 @@ class AlarmApp(QWidget):
         hour, minute = self.selected_alarm.time_str.split(':')
         self.hour_combo.setCurrentText(hour)
         self.minute_combo.setCurrentText(minute)
-        # 요일 버튼 상태 업데이트
         for i, button in enumerate(self.day_buttons):
             button.setChecked(i in self.selected_alarm.selected_days)
+        
+        # --- 알람 객체의 사운드 경로를 UI 임시 변수에 로드하고 버튼 텍스트 업데이트 --- 
+        alarm_sound_path = self.selected_alarm.sound_path
+        self.selected_sound_path = alarm_sound_path # UI 임시 상태 업데이트
+        if alarm_sound_path:
+            file_name = os.path.basename(alarm_sound_path)
+            self.form_sound_button.setText(f"Sound ({file_name})") # 폼 버튼 텍스트
+        else:
+            self.form_sound_button.setText("Sound 🔊") # 폼 버튼 텍스트
+        # ---------------------------------------------------------------------
 
         self.edit_mode = True
         self.form_title_label.setText("Edit Alarm")
         self.save_button.setText("Update Alarm")
         self.cancel_button.setVisible(True)
-        # 수정 중에는 목록 조작 버튼 비활성화
         self.alarm_listwidget.setEnabled(False)
         self.edit_button.setEnabled(False)
         self.delete_button.setEnabled(False)
@@ -339,16 +365,15 @@ class AlarmApp(QWidget):
 
     def cancel_edit(self):
         """수정 모드를 취소하고 폼을 초기화합니다."""
-        if not self.edit_mode: # 수정 모드가 아니면 아무것도 안 함
+        if not self.edit_mode: 
              return
         logging.info("수정 모드 취소됨.")
-        self.reset_form()
+        self.reset_form() 
         self.edit_mode = False
         self.form_title_label.setText("Add Alarm")
         self.save_button.setText("Save Alarm")
         self.cancel_button.setVisible(False)
-        self.alarm_listwidget.setEnabled(True) # 리스트 위젯 다시 활성화
-        # 선택 상태에 따라 버튼 활성화 복원
+        self.alarm_listwidget.setEnabled(True) 
         self.on_alarm_select(self.alarm_listwidget.currentItem(), None)
 
     def delete_alarm(self):
@@ -365,7 +390,6 @@ class AlarmApp(QWidget):
             deleted_alarm_id = self.selected_alarm.id
             self.alarms.remove(self.selected_alarm)
             logging.info(f"알람 삭제 완료: ID {deleted_alarm_id}")
-            # self.alarms_updated.emit(self.alarms) # 이미 삭제되었으므로 전체 업데이트 대신 삭제 시그널 사용
             self.alarm_deleted.emit(deleted_alarm_id) # 삭제된 ID 시그널 발생
             self.update_alarm_listwidget()
             self.reset_form()
@@ -402,10 +426,13 @@ class AlarmApp(QWidget):
         self.title_edit.clear()
         self.hour_combo.setCurrentText("07")
         self.minute_combo.setCurrentText("00")
-        # 모든 요일 버튼 선택 해제
         for button in self.day_buttons:
             button.setChecked(False)
-        self.clear_selection()
+        # --- UI 임시 사운드 선택 상태 초기화 --- 
+        self.selected_sound_path = None
+        self.form_sound_button.setText("Sound 🔊") # 폼 버튼 텍스트 초기화
+        # -------------------------------------
+        self.clear_selection() 
         logging.debug("입력 폼 리셋됨.")
 
     def closeEvent(self, event):
@@ -416,6 +443,36 @@ class AlarmApp(QWidget):
         # event.accept() # 종료 허용
         # event.ignore() # 종료 무시
         super().closeEvent(event) # 기본 동작 수행
+
+    def select_sound_file(self):
+        """(수정됨) 폼 내부 Sound 버튼 클릭 시 파일 선택하고 UI 임시 변수에 저장."""
+        # 알람 선택 여부 체크 제거 (폼이 활성화 되어있으면 항상 가능)
+        # if not self.selected_alarm: ... 제거
+
+        options = QFileDialog.Options()
+        file_path, _ = QFileDialog.getOpenFileName(
+            self, "Select Alarm Sound", "", "Sound Files (*.mp3 *.wav);;All Files (*)", options=options
+        )
+        
+        if file_path:
+            # UI 임시 변수에 경로 저장
+            self.selected_sound_path = file_path
+            logging.info(f"폼에서 사운드 파일 선택됨 (임시 저장): {file_path}")
+            # 폼 버튼 텍스트 업데이트
+            file_name = os.path.basename(file_path)
+            self.form_sound_button.setText(f"Sound ({file_name})")
+            # 알람 객체 직접 수정 및 시그널 발생 로직 제거
+            # self.selected_alarm.sound_path = file_path
+            # self.alarms_updated.emit(self.alarms)
+            # self.update_alarm_listwidget()
+        else:
+            # 파일 선택 취소 시
+            logging.info("폼에서 사운드 파일 선택 취소됨.")
+            # 취소 시에는 임시 경로를 None으로 설정할 수 있음 (선택적)
+            # self.selected_sound_path = None 
+            # self.form_sound_button.setText("Sound 🔊")
+            # 여기서는 선택 취소 시 아무것도 변경하지 않음 (기존 선택 유지)
+            pass
 
 # 테스트용 코드 (ui.py 직접 실행 시)
 if __name__ == '__main__':

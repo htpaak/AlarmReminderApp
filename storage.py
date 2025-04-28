@@ -1,11 +1,17 @@
 import json
 import os
+import logging
 from typing import List, Dict, Any
 from alarm import Alarm
+import uuid
 
 # 저장될 앱 이름 및 파일 이름 정의
 APP_NAME = "AlarmReminderApp"
 FILE_NAME = "alarms.json"
+
+# 데이터 저장 경로 설정
+APP_DATA_DIR = os.path.join(os.getenv('LOCALAPPDATA'), APP_NAME)
+ALARMS_FILE = os.path.join(APP_DATA_DIR, FILE_NAME)
 
 def get_storage_path() -> str:
     """로컬 AppData 디렉토리에 있는 저장 파일의 전체 경로를 반환합니다."""
@@ -25,15 +31,27 @@ def get_storage_path() -> str:
 # STORAGE_FILE 변수를 함수 호출 결과로 대체
 # STORAGE_FILE = "alarms.json"
 
+def _ensure_dir_exists():
+    """데이터 저장 디렉토리가 없으면 생성합니다."""
+    if not os.path.exists(APP_DATA_DIR):
+        try:
+            os.makedirs(APP_DATA_DIR)
+            logging.info(f"데이터 디렉토리 생성됨: {APP_DATA_DIR}")
+        except OSError as e:
+            logging.error(f"데이터 디렉토리 생성 실패: {e}")
+            # 여기서 오류를 다시 발생시키거나, 기본 경로를 사용하도록 처리할 수 있음
+            raise # 일단 오류 발생시켜서 문제 인지하도록 함
+
 def load_alarms() -> List[Alarm]:
     """저장된 알람 목록을 파일에서 불러옵니다."""
-    storage_file = get_storage_path()
-    if not os.path.exists(storage_file):
+    logging.info(f"알람 로딩 경로: {ALARMS_FILE}")
+    if not os.path.exists(ALARMS_FILE):
+        logging.warning(f"알람 파일({ALARMS_FILE})을 찾을 수 없습니다. 빈 목록을 반환합니다.")
         return []
     try:
         # 경로 확인 로그 추가
-        print(f"알람 로딩 경로: {storage_file}")
-        with open(storage_file, 'r', encoding='utf-8') as f:
+        print(f"알람 로딩 경로: {ALARMS_FILE}")
+        with open(ALARMS_FILE, 'r', encoding='utf-8') as f:
             alarms_data = json.load(f)
         alarms = []
         for data in alarms_data:
@@ -52,44 +70,57 @@ def load_alarms() -> List[Alarm]:
                     pass # 또는 이전 데이터 무시
                 del data['repeat'] # 변환 후 이전 필드 제거
                 
-            alarms.append(Alarm(**data))
+            # 이전 버전과의 호환성을 위해 get 사용 및 기본값 None 처리
+            alarm = Alarm(
+                id=data.get('id', ''), # 이전 버전에 id가 없을 수 있음
+                title=data.get('title', 'Untitled Alarm'),
+                time_str=data.get('time_str', '00:00'),
+                selected_days=data['selected_days'],
+                enabled=data.get('enabled', True),
+                sound_path=data.get('sound_path', None) # sound_path 로드 추가
+            )
+            # id가 없는 경우 새로 생성 (이전 버전 데이터 처리)
+            if not alarm.id:
+                 alarm.id = str(uuid.uuid4()) # uuid 임포트 필요 -> alarm.py에서 처리
+                 logging.warning(f"알람 데이터에 ID가 없어 새로 생성: {alarm.title} -> {alarm.id}")
+            alarms.append(alarm)
+        logging.info(f"{len(alarms)}개의 알람 로드 완료.")
         return alarms
     except (json.JSONDecodeError, KeyError, ValueError, TypeError) as e:
-        print(f"알람 로딩 오류 ({storage_file}): {e}. 빈 목록으로 시작합니다.")
+        print(f"알람 로딩 오류 ({ALARMS_FILE}): {e}. 빈 목록으로 시작합니다.")
         return []
 
 def save_alarms(alarms: List[Alarm]):
     """알람 목록을 파일에 저장합니다."""
-    storage_file = get_storage_path()
-    app_data_dir = os.path.dirname(storage_file)
-
-    # 저장 디렉토리 생성 (없는 경우)
+    _ensure_dir_exists() # 저장 전에 디렉토리 확인/생성
+    logging.info(f"알람 저장 경로: {ALARMS_FILE}")
     try:
-        if not os.path.exists(app_data_dir):
-            os.makedirs(app_data_dir)
-            print(f"앱 데이터 디렉토리 생성: {app_data_dir}")
-    except OSError as e:
-        print(f"앱 데이터 디렉토리 생성 오류 ({app_data_dir}): {e}")
-        # 디렉토리 생성 실패 시 저장 중단
-        return
-
-    alarms_data = []
-    for alarm in alarms:
-        # Alarm 객체를 JSON으로 직렬화 가능한 딕셔너리로 변환
-        data = {
-            "id": alarm.id,
-            "title": alarm.title,
-            "time_str": alarm.time_str,
-            # 'repeat' 대신 'selected_days' 저장 (set을 list로 변환)
-            "selected_days": sorted(list(alarm.selected_days)),
-            "enabled": alarm.enabled
-        }
-        alarms_data.append(data)
-
-    try:
-        # 경로 확인 로그 추가
-        print(f"알람 저장 경로: {storage_file}")
-        with open(storage_file, 'w', encoding='utf-8') as f:
+        # Alarm 객체 리스트를 JSON 직렬화 가능한 리스트로 변환
+        alarms_data = [
+            {
+                'id': alarm.id,
+                'title': alarm.title,
+                'time_str': alarm.time_str,
+                'selected_days': list(alarm.selected_days), # set을 list로 변환
+                'enabled': alarm.enabled,
+                'sound_path': alarm.sound_path # sound_path 저장 추가
+            }
+            for alarm in alarms
+        ]
+        with open(ALARMS_FILE, 'w', encoding='utf-8') as f:
             json.dump(alarms_data, f, indent=4, ensure_ascii=False)
+        logging.info(f"{len(alarms)}개의 알람 저장 완료.")
     except IOError as e:
-        print(f"알람 저장 오류 ({storage_file}): {e}") 
+        logging.error(f"알람 저장 실패: {e}")
+    except Exception as e:
+        logging.error(f"알람 데이터 직렬화 또는 저장 중 예외 발생: {e}", exc_info=True)
+
+# 예제 사용
+if __name__ == "__main__":
+    # 알람 목록 로드
+    alarms = load_alarms()
+    print(f"로드된 알람 목록: {alarms}")
+
+    # 알람 목록 저장
+    save_alarms(alarms)
+    print("알람 목록이 성공적으로 저장되었습니다.") 

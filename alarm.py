@@ -1,6 +1,6 @@
 import uuid
 from dataclasses import dataclass, field
-from typing import Set
+from typing import Set, Optional
 
 # RepeatSetting Enum 제거
 # class RepeatSetting(Enum):
@@ -19,6 +19,7 @@ class Alarm:
     selected_days: Set[int] = field(default_factory=set)
     enabled: bool = True
     id: str = field(default_factory=lambda: str(uuid.uuid4()))
+    sound_path: Optional[str] = None # 알람별 사운드 경로 추가
 
     def get_repeat_str(self) -> str:
         """선택된 요일을 문자열로 반환합니다."""
@@ -35,5 +36,8 @@ class Alarm:
         # UI 목록 표시에 사용될 문자열 형식
         repeat_str = self.get_repeat_str()
         status_str = "🔔" if self.enabled else "🔕"
+        # --- 사운드 지정 여부 표시 추가 --- 
+        sound_indicator = " 🔊" if self.sound_path else ""
+        # ---------------------------------
         # repeat_str이 비어있지 않으면 공백 추가
-        return f"{status_str} {self.time_str} - {self.title}{' ' + repeat_str if repeat_str else ''}" 
+        return f"{status_str} {self.time_str} - {self.title}{sound_indicator}{' ' + repeat_str if repeat_str else ''}" 
