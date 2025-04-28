@@ -6,9 +6,9 @@ from PyQt5.QtWidgets import (
     QApplication, QWidget, QVBoxLayout, QHBoxLayout, QFormLayout, 
     QLabel, QLineEdit, QComboBox, QPushButton, QListWidget, 
     QMessageBox, QListWidgetItem, QFrame, QSizePolicy, QDesktopWidget, QButtonGroup,
-    QListView, QFileDialog
+    QListView, QFileDialog, QSystemTrayIcon
 )
-from PyQt5.QtCore import Qt, pyqtSignal, QSize, QUrl
+from PyQt5.QtCore import Qt, pyqtSignal, QSize, QUrl, QTime
 from PyQt5.QtGui import QColor, QFont, QIcon
 from PyQt5.QtMultimedia import QSoundEffect
 
@@ -19,13 +19,14 @@ class AlarmApp(QWidget):
     alarms_updated = pyqtSignal(list)
     alarm_deleted = pyqtSignal(str) # 삭제된 알람 ID 전달
 
-    def __init__(self, alarms: List[Alarm]):
-        super().__init__()
+    def __init__(self, alarms: List[Alarm], tray_icon: QSystemTrayIcon, parent=None):
+        super().__init__(parent)
         self.alarms = alarms
         self.selected_alarm: Optional[Alarm] = None
         self.edit_mode = False
         self.day_buttons: List[QPushButton] = [] # 요일 버튼 리스트
         self.selected_sound_path: Optional[str] = None # UI 임시 저장용 경로 다시 추가
+        self.tray_icon = tray_icon # 트레이 아이콘 저장
 
         self.initUI()
         self.update_alarm_listwidget()
@@ -193,11 +194,17 @@ class AlarmApp(QWidget):
         self.form_sound_button = QPushButton("Sound 🔊")
         self.form_sound_button.setObjectName("soundOptionButton") # 객체 이름 설정
         self.form_sound_button.setCheckable(True) # Checkable 설정
+        self.form_sound_button.setMinimumWidth(120) # 최소 너비 설정 추가
+        # 수평 크기 정책 설정 제거
+        # self.form_sound_button.setSizePolicy(QSizePolicy.MinimumExpanding, QSizePolicy.Fixed)
         self.form_sound_button.clicked.connect(self.select_sound_file)
         
         self.clear_sound_button = QPushButton("No Sound 🔇") # 텍스트 변경
         self.clear_sound_button.setObjectName("soundOptionButton") # 객체 이름 설정
         self.clear_sound_button.setCheckable(True) # Checkable 설정
+        # 크기 정책 설정 제거
+        # self.clear_sound_button.setSizePolicy(QSizePolicy.MinimumExpanding, QSizePolicy.Fixed) 
+        self.clear_sound_button.setMinimumWidth(120) # 최소 너비 120으로 증가
         self.clear_sound_button.clicked.connect(self.clear_selected_sound) 
         # self.clear_sound_button.setEnabled(False) # 초기 활성화 상태 제거 (선택 상태로 관리)
 
@@ -211,7 +218,7 @@ class AlarmApp(QWidget):
         
         sound_layout.addWidget(self.clear_sound_button) 
         sound_layout.addWidget(self.form_sound_button) 
-        sound_layout.addStretch(1)
+        sound_layout.addStretch(1) # 스트레치 다시 활성화
         form_layout.addRow("Sound:", sound_layout)
         # ---------------------------------------
         
@@ -264,6 +271,11 @@ class AlarmApp(QWidget):
         list_layout_wrapper.addLayout(list_button_layout)
         
         main_layout.addWidget(list_frame)
+
+        self.setLayout(main_layout)
+        self.setWindowTitle('Alarm Reminder App')
+        self.setWindowIcon(QIcon('assets/icon.svg')) # 윈도우 아이콘 설정
+        self.setGeometry(300, 300, 600, 400) # 창 크기 및 위치 설정
 
     def center(self):
         """창을 화면 중앙으로 이동시킵니다."""
@@ -476,48 +488,54 @@ class AlarmApp(QWidget):
         logging.debug("입력 폼 리셋됨.")
 
     def closeEvent(self, event):
-        """QWidget.close() 또는 창 닫기 버튼 클릭 시 호출됨"""
-        # 여기서 종료 확인 메시지를 표시하고 스케줄러 중지 로직 연결 가능
-        # 단, main.py에서 QApplication 종료 전에 처리하는 것이 더 일반적임
-        logging.debug("AlarmApp 위젯 closeEvent 호출됨.")
-        # event.accept() # 종료 허용
-        # event.ignore() # 종료 무시
-        super().closeEvent(event) # 기본 동작 수행
+        """창 닫기 버튼 클릭 시 트레이로 최소화"""
+        logging.info("Close button clicked. Hiding window to tray.")
+        event.ignore()  # 창 닫기 이벤트를 무시
+        self.hide()     # 창 숨기기
+        # 트레이 아이콘 메시지 표시 (정보, 제목, 내용, 아이콘, 시간(ms))
+        self.tray_icon.showMessage(
+            "Application Minimized",
+            "AlarmReminderApp is running in the background.",
+            QSystemTrayIcon.Information, # 메시지 아이콘 타입
+            2000 # 2초 동안 표시
+        )
 
     def select_sound_file(self):
-        """폼 내부 Sound 버튼 클릭 시 파일 선택하고 UI 임시 변수에 저장."""
-        # Sound 버튼 클릭 시 -> 파일을 선택하면 Sound 버튼이 선택됨
-        options = QFileDialog.Options()
-        file_path, _ = QFileDialog.getOpenFileName(
-            self, "Select Alarm Sound", "", "Sound Files (*.mp3 *.wav);;All Files (*)", options=options
+        """사운드 파일 선택 다이얼로그를 열고 선택된 파일 경로를 저장합니다."""
+        # 기본 폴더 설정 (예: 현재 작업 디렉토리)
+        # 또는 마지막으로 사용했던 폴더 등으로 설정할 수 있습니다.
+        default_dir = os.getcwd() 
+        
+        # 파일 필터 (wav, mp3 지원 예시)
+        file_filter = "Sound Files (*.wav *.mp3);;All Files (*)"
+        
+        # 파일 선택 다이얼로그 열기
+        fileName, _ = QFileDialog.getOpenFileName(
+            self, 
+            "Select Sound File", 
+            default_dir, 
+            file_filter
         )
         
-        if file_path:
-            self.selected_sound_path = file_path
-            logging.info(f"폼에서 사운드 파일 선택됨 (임시 저장): {file_path}")
-            file_name = os.path.basename(file_path)
-            self.form_sound_button.setText(f"Sound ({file_name}) 🔊")
-            # self.clear_sound_button.setEnabled(True) # Enabled 대신 Checked 사용
-            self.form_sound_button.setChecked(True) # Sound 버튼 선택 상태로
-        else:
-            logging.info("폼에서 사운드 파일 선택 취소됨.")
-            # 파일 선택 취소 시: 
-            # - 만약 이전에 선택된 사운드가 없었다면 No Sound 선택 유지
-            # - 만약 이전에 선택된 사운드가 있었다면 해당 사운드 선택 유지 (텍스트는 유지됨)
-            # 즉, 파일 선택 취소 시에는 버튼 선택 상태 변경 없음
-            pass
+        if fileName: # 파일이 선택된 경우
+            logging.debug(f"사운드 파일 선택됨: {fileName}")
+            self.selected_sound_path = fileName
+            # 버튼 텍스트에 파일명 표시 (경로는 제외하고 파일명만)
+            self.form_sound_button.setText(f"🔊 {os.path.basename(fileName)}")
+            self.form_sound_button.setChecked(True) # 사운드 버튼 선택 상태로
+        else: # 파일 선택이 취소된 경우
+            logging.debug("사운드 파일 선택 취소됨.")
+            # '취소' 시 'No Sound' 상태로 되돌림
+            # 이전에 선택된 사운드가 있었는지 여부와 관계없이 No Sound로 설정
+            self.clear_selected_sound() # clear_selected_sound 호출
 
     def clear_selected_sound(self):
-        """폼에서 선택된 사운드를 제거(None으로 설정)합니다."""
-        # No Sound 버튼 클릭 시 -> No Sound 버튼이 선택됨
-        # if self.selected_sound_path is None:
-        #      return # 이미 No Sound가 선택된 상태일 수 있으므로 이 체크 제거
-        
-        logging.info("폼에서 선택된 사운드 제거됨.")
+        """선택된 사운드 파일 경로를 초기화하고 버튼 상태를 업데이트합니다."""
+        logging.debug("선택된 사운드 초기화 요청.")
         self.selected_sound_path = None
-        self.form_sound_button.setText("Sound 🔊") # 기본 텍스트로 복원
-        # self.clear_sound_button.setEnabled(False) # Enabled 대신 Checked 사용
-        self.clear_sound_button.setChecked(True) # No Sound 버튼 선택 상태로
+        self.form_sound_button.setText("Sound 🔊") # 버튼 텍스트 원래대로 복구
+        # self.form_sound_button.setChecked(False) # 그룹 관리로 불필요
+        self.clear_sound_button.setChecked(True) # No Sound 버튼을 선택 상태로 변경
 
 # 테스트용 코드 (ui.py 직접 실행 시)
 if __name__ == '__main__':
@@ -528,7 +546,8 @@ if __name__ == '__main__':
         Alarm(title="Weekend Jogging", time_str="09:00", selected_days={5, 6}), # 토, 일
         Alarm(title="Meeting", time_str="14:00", selected_days={2}, enabled=False) # 수요일, 비활성
     ]
-    ex = AlarmApp(test_alarms)
+    tray_icon = QSystemTrayIcon()
+    ex = AlarmApp(test_alarms, tray_icon)
     
     # 시그널 연결 (테스트용)
     def handle_update(alarms_list):

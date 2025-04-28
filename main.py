@@ -5,11 +5,10 @@ import threading
 import time
 import signal
 from typing import List, Optional
-# Tkinter 임포트 제거
-# from tkinter import messagebox 
-# PyQt5 임포트 추가
-from PyQt5.QtWidgets import QApplication, QMessageBox
-from PyQt5.QtCore import Qt # Qt 임포트 추가
+# PyQt5 임포트 추가/수정
+from PyQt5.QtWidgets import QApplication, QMessageBox, QSystemTrayIcon, QMenu, QAction
+from PyQt5.QtCore import Qt 
+from PyQt5.QtGui import QIcon # QIcon 임포트 추가
 # ctypes 임포트 추가 (Windows API 호출용)
 import ctypes
 import platform
@@ -22,8 +21,8 @@ from alarm import Alarm
 from storage import load_alarms, save_alarms
 # from ui import AlarmApp # PyQt5 버전으로 변경
 from ui import AlarmApp
-from scheduler import start_scheduler, stop_scheduler, update_scheduled_alarm, remove_scheduled_alarm
-from notification import notification_helper, cleanup_sounds # notification_helper 임포트 및 cleanup 추가
+from scheduler import start_scheduler, stop_scheduler, update_scheduled_alarm, remove_scheduled_alarm, _scheduler_thread # scheduler_thread 임포트 추가
+from notification import notification_helper, cleanup_sounds 
 
 # --- 로깅 설정 (가장 먼저 수행, 가장 단순한 형태로 변경) --- 
 log_dir = "logs"
@@ -82,22 +81,72 @@ logging.info("High DPI Scaling 활성화됨.")
 # -------------------------
 
 # 저장된 알람 로드
-logging.debug("Loading alarms...") # 로깅 추가
+logging.debug("Loading alarms...") 
 alarms = load_alarms()
 logging.info(f"{len(alarms)}개의 알람 로드 완료.")
 
-# PyQt5 Application 생성
-logging.debug("Initializing QApplication...") # 로깅 추가
+logging.debug("Initializing QApplication...") 
 app = QApplication(sys.argv)
+# --- 창 닫을 때 종료하지 않도록 설정 --- 
+app.setQuitOnLastWindowClosed(False)
+# --------------------------------------
 
-# UI 인스턴스 생성
-ui_app = AlarmApp(alarms)
+# --- 시스템 트레이 아이콘 설정 --- 
+logging.debug("Setting up system tray icon...")
+tray_icon = QSystemTrayIcon(QIcon("assets/icon.svg"), parent=app)
+tray_icon.setToolTip("AlarmReminderApp")
 
-# --- 사운드 경로 가져오기 콜백 제거 ---
-# get_sound_path = lambda: ui_app.selected_sound_path
-# ------------------------------------
+# 트레이 메뉴 생성
+menu = QMenu()
+show_action = QAction("Show/Hide", parent=app)
+quit_action = QAction("Quit", parent=app)
 
-# 스케줄러 시작 (콜백 없이)
+# 액션 연결 (toggle_window_visibility 는 ui_app 생성 후에 정의되므로 lambda 사용)
+# quit 액션은 바로 연결 가능
+quit_action.triggered.connect(QApplication.instance().quit) # 앱 종료 시그널
+
+# 메뉴에 액션 추가
+menu.addAction(show_action) # 나중에 연결할 show_action 먼저 추가
+menu.addSeparator()
+menu.addAction(quit_action)
+
+# 아이콘에 메뉴 설정
+tray_icon.setContextMenu(menu)
+# tray_icon.show() # UI 생성 및 show() 이후에 호출
+# ---------------------------------
+
+# UI 인스턴스 생성 (tray_icon 전달)
+logging.debug("Creating AlarmApp UI instance...")
+ui_app = AlarmApp(alarms, tray_icon)
+
+# --- 트레이 아이콘 관련 함수 정의 --- 
+def toggle_window_visibility(window):
+    """창 보이기/숨기기 토글"""
+    if window.isVisible():
+        logging.debug("Hiding window via tray action.")
+        window.hide()
+    else:
+        logging.debug("Showing window via tray action.")
+        window.show()
+        window.activateWindow() # 창을 활성화하고 앞으로 가져옴
+
+def handle_tray_activation(reason, window):
+    """트레이 아이콘 클릭 처리 (왼쪽 클릭 시 창 토글)"""
+    if reason == QSystemTrayIcon.Trigger: # 왼쪽 버튼 클릭
+        logging.debug("Tray icon activated (Trigger).")
+        toggle_window_visibility(window)
+# --------------------------
+
+# --- 트레이 아이콘 액션 연결 완료 및 표시 --- 
+# 이제 ui_app이 정의되었으므로 show_action 연결 가능
+show_action.triggered.connect(lambda: toggle_window_visibility(ui_app))
+# 트레이 아이콘 클릭 시 동작 연결
+tray_icon.activated.connect(lambda reason: handle_tray_activation(reason, ui_app))
+tray_icon.show() # 트레이 아이콘 표시
+logging.debug("System tray icon setup complete and shown.")
+# ----------------------------------------
+
+# 스케줄러 시작 
 start_scheduler(alarms)
 
 # --- 시그널-슬롯 연결 --- 
@@ -141,10 +190,12 @@ ui_app.alarms_updated.connect(handle_alarms_updated)
 ui_app.alarm_deleted.connect(handle_alarm_deleted)
 # -------------------------
 
+logging.debug("Showing main window...")
 ui_app.show()
 
+# --- 앱 종료 시 정리 작업 연결 --- 
 app.aboutToQuit.connect(stop_scheduler)
-app.aboutToQuit.connect(cleanup_sounds) # 앱 종료 시 사운드 정리 추가
+app.aboutToQuit.connect(cleanup_sounds) 
 
 # --- 시그널 핸들러 설정 (Ctrl+C 종료용) --- 
 def signal_handler(sig, frame):
@@ -167,7 +218,7 @@ except Exception as e:
     cleanup_sounds() # 예외 발생 시에도 사운드 정리 시도
     sys.exit(1) # 오류 코드 반환하며 종료
 
-if __name__ == "__main__":
-    # 전역 스케줄러 임포트 (시그널 핸들러에서 사용하기 위함)
-    import scheduler 
-    main()
+# 직접 실행 시 main() 호출 (위의 if 블록 대신 사용)
+if __name__ == '__main__':
+    # main() 함수 로직이 이미 전역 스코프에서 실행되고 있으므로 별도 호출 불필요
+    pass # 전역 스코프에서 이미 실행됨
