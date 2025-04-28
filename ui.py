@@ -33,8 +33,8 @@ class AlarmApp(QWidget):
 
     def initUI(self):
         self.setWindowTitle("AlarmReminderApp") # 띄어쓰기 제거
-        self.resize(600, 550) # 너비와 높이 증가
-        self.setMinimumSize(600, 550) # 최소 너비와 높이 설정
+        self.resize(600, 700) # 너비와 높이 증가 (높이 700으로 수정)
+        self.setMinimumSize(600, 700) # 최소 너비와 높이 설정 (높이 700으로 수정)
         self.center() # 화면 중앙으로 이동시키는 메서드 호출
         
         # --- 창 아이콘 설정 --- 
@@ -47,93 +47,209 @@ class AlarmApp(QWidget):
         # ---------------------
 
         self.setStyleSheet("""
+            /* === 기본 위젯 스타일 === */
             QWidget { 
-                background-color: #f0f0f0; 
-                font-family: Helvetica; 
+                background-color: #f8f9fa; /* 더 밝은 배경색 */
+                font-family: "Segoe UI", Frutiger, "Frutiger Linotype", Univers, Calibri, "Gill Sans", "Gill Sans MT", "Myriad Pro", Myriad, "DejaVu Sans Condensed", "Liberation Sans", "Nimbus Sans L", Tahoma, Geneva, "Helvetica Neue", Helvetica, Arial, sans-serif; /* 선호 폰트 지정 */
                 font-size: 10pt; 
+                color: #343a40; /* 기본 텍스트 색상 */
             }
-            QLabel { background-color: transparent; }
-            /* QComboBox 스타일 복원 (padding 제외, min-width 추가) */
+            QLabel { 
+                background-color: transparent; 
+                padding: 2px; /* 레이블 여백 약간 추가 */
+            }
+
+            /* === 입력 필드 및 콤보박스 === */
             QLineEdit, QComboBox { 
-                /* padding: 5px; */ /* 패딩 제외 */
-                border: 1px solid #c0c0c0; 
-                border-radius: 3px; 
-                background-color: white;
-                min-width: 40px; /* 최소 너비 지정 */
-            }
-            QPushButton { 
-                padding: 6px 10px; 
-                border: 1px solid #b0b0b0; 
-                border-radius: 3px; 
-                background-color: #e0e0e0; 
-            }
-            QPushButton:hover { background-color: #d0d0d0; }
-            QPushButton:pressed { background-color: #c0c0c0; }
-            QPushButton:disabled { background-color: #f5f5f5; color: #a0a0a0; }
-            QListWidget { 
-                border: 1px solid #c0c0c0; 
-                border-radius: 3px; 
-                background-color: white;
-                font-family: Consolas; /* 고정폭 폰트 */
+                padding: 6px 8px; /* 패딩 조정 */
+                border: 1px solid #ced4da; /* 연한 테두리 */
+                border-radius: 6px; /* 더 둥근 모서리 */
+                background-color: #ffffff;
+                min-width: 45px; /* 최소 너비 약간 증가 */
                 font-size: 10pt;
             }
-            QListWidget::item:selected { background-color: #d0e4f8; color: black; }
-            QFrame#formFrame, QFrame#listFrame { /* Frame 구분선 */
-                border: 1px solid #d0d0d0;
-                border-radius: 5px;
-                padding: 10px;
-                margin-bottom: 10px; /* 프레임 간 간격 */
+            QLineEdit:focus, QComboBox:focus {
+                border-color: #80bdff; /* 포커스 시 테두리 색상 */
+                /* box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25); /* 부트스트랩 스타일 그림자 (Qt에서는 직접 지원 어려움) */
             }
-            QLabel#frameTitle { /* 프레임 제목 스타일 */
-                font-weight: bold;
-                font-size: 11pt;
-                margin-bottom: 5px;
-                color: #333;
+            QComboBox::drop-down {
+                border-left: 1px solid #ced4da;
+                border-top-right-radius: 6px;
+                border-bottom-right-radius: 6px;
+                width: 20px; /* 드롭다운 버튼 너비 */
             }
-            QPushButton#dayButton { /* 요일 버튼 기본 스타일 */
-                padding: 5px 8px;
+            QComboBox::down-arrow {
+                /* 이미지 사용 가능: image: url(path/to/arrow.png); */
+                 width: 10px; height: 10px; /* 기본 화살표 크기 조정 가능 */
+            }
+            QComboBox QAbstractItemView { /* 드롭다운 목록 스타일 */
+                border: 1px solid #ced4da;
+                background-color: white;
+                selection-background-color: #e9ecef; /* 선택 항목 배경색 */
+                selection-color: #343a40; /* 선택 항목 텍스트 색상 */
+                padding: 4px;
+            }
+
+
+            /* === 기본 버튼 === */
+            QPushButton { 
+                padding: 8px 12px; /* 버튼 패딩 증가 */
+                border: 1px solid #adb5bd; /* 버튼 테두리 */
+                border-radius: 6px; /* 더 둥근 모서리 */
+                background-color: #e9ecef; /* 버튼 기본 배경색 */
+                color: #343a40; /* 버튼 텍스트 색상 */
+                font-weight: 500; /* 약간 굵게 */
+            }
+            QPushButton:hover { 
+                background-color: #dee2e6; /* 밝은 회색 */
+                border-color: #adb5bd;
+            }
+            QPushButton:pressed { 
+                background-color: #ced4da; /* 더 진한 회색 */
+                border-color: #adb5bd;
+            }
+            QPushButton:disabled { 
+                background-color: #f1f3f5; 
+                color: #adb5bd; 
+                border-color: #dee2e6;
+            }
+
+            /* === 리스트 위젯 === */
+            QListWidget { 
+                border: 1px solid #dee2e6; /* 더 연한 테두리 */
+                border-radius: 6px; 
+                background-color: white;
+                font-family: Consolas, Monaco, "Andale Mono", "Ubuntu Mono", monospace; /* 고정폭 폰트 유지 */
+                font-size: 10pt;
+                padding: 5px; /* 내부 여백 추가 */
+            }
+            QListWidget::item {
+                padding: 5px 3px; /* 아이템 간 상하 여백 */
+                margin: 1px 0; /* 아이템 간 좌우 마진 (선택 시 테두리 보일 공간) */
+                border-radius: 4px; /* 아이템 모서리 약간 둥글게 */
+            }
+            QListWidget::item:selected { 
+                background-color: #cfe2ff; /* 부드러운 파란색 */
+                color: #0a3678; 
+                border: 1px solid #b6d4fe; /* 선택 시 테두리 */
+            }
+            QListWidget::item:!enabled { /* 비활성화 아이템 */
+                 color: #adb5bd;
+                 /* background-color: #f8f9fa; /* 약간 다른 배경색 줄 수도 있음 */
+            }
+
+            /* === 프레임 스타일 === */
+            QFrame#formFrame, QFrame#listFrame { 
+                border: 1px solid #e9ecef; /* 매우 연한 테두리 */
+                border-radius: 8px; /* 프레임 모서리 둥글게 */
+                padding: 15px; /* 프레임 내부 여백 증가 */
+                margin-bottom: 15px; /* 프레임 간 간격 증가 */
+                background-color: #ffffff; /* 프레임 배경 흰색으로 구분 */
+            }
+            QLabel#frameTitle { 
+                font-weight: 600; /* 제목 굵기 증가 */
+                font-size: 12pt; /* 제목 크기 증가 */
+                margin-bottom: 10px; /* 제목과 내용 간 간격 증가 */
+                color: #495057; /* 제목 색상 약간 변경 */
+                border-bottom: 1px solid #dee2e6; /* 제목 아래 구분선 */
+                padding-bottom: 5px; /* 구분선과의 간격 */
+            }
+
+            /* === 요일 버튼 스타일 === */
+            QPushButton#dayButton { 
+                padding: 6px 9px; /* 요일 버튼 패딩 */
                 font-size: 9pt;
-                min-width: 40px; /* 최소 너비 */
-                background-color: #f8f8f8;
-                border: 1px solid #c0c0c0;
+                min-width: 45px; 
+                background-color: #f8f9fa; /* 기본 배경 */
+                border: 1px solid #ced4da; /* 기본 테두리 */
             }
-            QPushButton#dayButton:checked { /* 선택된 요일 버튼 스타일 변경 */
-                background-color: #d9f7d9; /* 연한 녹색 */
-                border: 1px solid #9fdf9f; /* 조금 더 진한 녹색 테두리 */
-                font-weight: bold;
+            QPushButton#dayButton:checked { 
+                background-color: #d1e7dd; /* 선택 시 연한 녹색 */
+                border-color: #a3cfbb; 
+                color: #0a3622;
+                font-weight: 600;
             }
-            /* --- 사운드 옵션 버튼 스타일 추가 --- */
-            QPushButton#soundOptionButton { /* 사운드 버튼 기본 스타일 */
-                padding: 5px 8px;
+            QPushButton#dayButton:hover:!checked { /* 선택 안됐을때 hover */
+                 background-color: #e9ecef;
+            }
+
+            /* === 사운드 옵션 버튼 스타일 === */
+            QPushButton#soundOptionButton { 
+                padding: 6px 9px;
                 font-size: 9pt;
-                background-color: #f8f8f8;
-                border: 1px solid #c0c0c0;
+                border: 1px solid #ced4da;
             }
-            QPushButton#soundOptionButton:checked { /* 선택된 사운드 버튼 스타일 */
-                background-color: #d9f7d9; /* 연한 녹색 */
-                border: 1px solid #9fdf9f; /* 조금 더 진한 녹색 테두리 */
-                font-weight: bold;
+            QPushButton#soundOptionButton:checked { 
+                background-color: #cfe2ff; /* 선택 시 연한 파랑 */
+                border-color: #a6c8ff;
+                color: #052c65;
+                font-weight: 600;
             }
-            /* ------------------------------------ */
-            /* --- Save Alarm 버튼 스타일 추가 --- */
+            QPushButton#soundOptionButton:!checked { /* 선택 안된 버튼 */
+                 background-color: #f8f9fa;
+                 color: #495057;
+            }
+             QPushButton#soundOptionButton:hover:!checked { /* 선택 안됐을때 hover */
+                 background-color: #e9ecef;
+            }
+
+            /* === 저장/업데이트 버튼 (Primary) === */
             QPushButton#saveButton {
-                background-color: #3498db; /* 파란색 배경 */
-                color: white; /* 흰색 텍스트 */
-                border: 1px solid #2980b9;
-                font-weight: bold;
+                background-color: #0d6efd; /* 부트스트랩 파란색 */
+                color: white; 
+                border: 1px solid #0d6efd;
+                font-weight: 600; /* 텍스트 강조 */
             }
             QPushButton#saveButton:hover {
-                background-color: #2980b9; /* 조금 더 진한 파랑 */
+                background-color: #0b5ed7; 
+                border-color: #0a58ca;
             }
             QPushButton#saveButton:pressed {
-                background-color: #1f618d; /* 더 진한 파랑 */
+                background-color: #0a58ca; 
+                border-color: #0a53be;
             }
-            QPushButton#saveButton:disabled { /* 비활성화 시 스타일 */
-                 background-color: #a9cce3;
-                 border-color: #a9cce3;
-                 color: #eaf2f8;
+            QPushButton#saveButton:disabled { 
+                 background-color: #6ea8fe;
+                 border-color: #6ea8fe;
+                 color: #e7f1ff;
             }
-            /* --- Save Alarm 버튼 스타일 끝 --- */
+            
+            /* === 취소 버튼 (Secondary) === */
+            QPushButton#cancelButton { /* cancel_button 객체 이름 설정 필요 */
+                background-color: #6c757d; /* 회색 계열 */
+                color: white;
+                border-color: #6c757d;
+            }
+             QPushButton#cancelButton:hover {
+                 background-color: #5c636a;
+                 border-color: #565e64;
+             }
+             QPushButton#cancelButton:pressed {
+                 background-color: #565e64;
+                 border-color: #51585e;
+             }
+
+            /* === 목록 조작 버튼 (Edit, Delete, Toggle) === */
+            QPushButton#editButton, QPushButton#deleteButton, QPushButton#toggleButton { /* 각 버튼 객체 이름 설정 필요 */
+                 font-size: 9pt;
+                 padding: 5px 8px;
+            }
+            QPushButton#editButton {
+                /* 필요시 개별 스타일 */
+            }
+             QPushButton#deleteButton {
+                 background-color: #f8d7da; /* 연한 빨강 배경 */
+                 color: #58151c;
+                 border-color: #f1aeb5;
+             }
+             QPushButton#deleteButton:hover {
+                 background-color: #f1aeb5;
+                 border-color: #ee959e;
+                 color: #411015;
+             }
+            QPushButton#toggleButton {
+                /* 필요시 개별 스타일 */
+            }
         """)
 
         main_layout = QVBoxLayout(self)
@@ -230,6 +346,7 @@ class AlarmApp(QWidget):
         self.save_button.setObjectName("saveButton")
         self.save_button.clicked.connect(self.save_alarm)
         self.cancel_button = QPushButton("Cancel Edit")
+        self.cancel_button.setObjectName("cancelButton")
         self.cancel_button.clicked.connect(self.cancel_edit)
         self.cancel_button.setVisible(False) # 처음엔 숨김
         button_layout.addStretch(1)
@@ -256,12 +373,15 @@ class AlarmApp(QWidget):
         # 목록 조작 버튼 (Sound 버튼 제거)
         list_button_layout = QHBoxLayout()
         self.edit_button = QPushButton("Edit ✏️")
+        self.edit_button.setObjectName("editButton")
         self.edit_button.clicked.connect(self.edit_alarm)
         self.edit_button.setEnabled(False)
         self.delete_button = QPushButton("Delete 🗑️")
+        self.delete_button.setObjectName("deleteButton")
         self.delete_button.clicked.connect(self.delete_alarm)
         self.delete_button.setEnabled(False)
         self.toggle_button = QPushButton("Toggle 🔔/🔕")
+        self.toggle_button.setObjectName("toggleButton")
         self.toggle_button.clicked.connect(self.toggle_alarm_enabled)
         self.toggle_button.setEnabled(False)
         list_button_layout.addWidget(self.edit_button)
@@ -271,6 +391,11 @@ class AlarmApp(QWidget):
         list_layout_wrapper.addLayout(list_button_layout)
         
         main_layout.addWidget(list_frame)
+
+        # --- 스트레치 비율 설정 --- 
+        main_layout.setStretchFactor(form_frame, 1) # Add Alarm 섹션 비율
+        main_layout.setStretchFactor(list_frame, 2) # Registered Alarms 섹션 비율 (더 크게)
+        # ---------------------------
 
         self.setLayout(main_layout)
         self.setWindowTitle('Alarm Reminder App')
