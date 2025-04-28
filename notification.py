@@ -44,49 +44,80 @@ class NotificationHelper(QObject):
     @pyqtSlot(str, str, str) # 슬롯 정의 유지
     def create_and_show_dialog(self, title, message, sound_path):
         """메인 GUI 스레드에서 실행될 슬롯: CustomNotificationDialog 생성, 표시 및 사운드 재생"""
-        global _active_dialogs # 전역 리스트 사용 명시
+        global _active_dialogs, active_sounds
         try:
-            # --- CustomNotificationDialog 사용으로 복원 --- 
             dialog = CustomNotificationDialog(title, message)
-            # 아이콘 설정 시도 (CustomNotificationDialog에 setWindowIcon 메서드가 있다고 가정)
+            player = None # 플레이어 참조 변수 초기화
+
             if not self.app_icon.isNull():
                 try:
                     dialog.setWindowIcon(self.app_icon)
                 except AttributeError:
                     logging.warning("CustomNotificationDialog에 setWindowIcon 메서드가 없습니다.")
             
-            # 다이얼로그 표시
             dialog.show()
             
-            # 다이얼로그 참조 관리 복원
-            dialog.destroyed.connect(
-                lambda obj=dialog: _active_dialogs.remove(obj) if obj in _active_dialogs else None
-            )
             _active_dialogs.append(dialog)
             logging.info(f"CustomNotificationDialog 알림 표시됨 (메인 스레드): {title} - {message}")
-            # --- QMessageBox 관련 코드 제거 ---
             
-            # 사운드 재생 로직
             if sound_path:
                 logging.debug(f"사운드 재생 로직 호출 (QMediaPlayer 사용): {sound_path}") 
-                self.play_sound(sound_path)
+                player = self.play_sound(sound_path) # 플레이어 객체 받기
             else:
                  logging.debug("지정된 사운드 경로 없음.")
+
+            # --- 알림 창 닫힐 때 사운드 중지 및 정리 --- 
+            if player:
+                 def stop_sound_on_dialog_close():
+                      global active_sounds
+                      logging.debug(f"*** stop_sound_on_dialog_close called for dialog: {title} ***")
+                      logging.debug(f"    Player object: {player}")
+                      logging.debug(f"    Current active_sounds (before): {active_sounds}")
+                      try:
+                           # --- 플래그 설정 --- 
+                           player.setProperty("stoppedByUser", True)
+                           logging.debug("    Set stoppedByUser property to True.")
+                           # ----------------
+                           player_state_before = player.state()
+                           logging.debug(f"    Player state before stop(): {player_state_before}")
+                           if player_state_before == QMediaPlayer.PlayingState:
+                                logging.debug("    Calling player.stop()...")
+                                player.stop()
+                                logging.debug("    player.stop() called.")
+                           else:
+                                logging.debug("    Player not in PlayingState, stop() not called.")
+                                
+                           if player in active_sounds:
+                                logging.debug("    Removing player from active_sounds...")
+                                active_sounds.remove(player)
+                                logging.debug(f"    Player removed. Current active_sounds (after): {active_sounds}")
+                           else:
+                                logging.warning("    Player not found in active_sounds list during removal.")
+                                
+                      except Exception as e:
+                           logging.error(f"사운드 중지/정리 중 오류 (Dialog Closed): {e}", exc_info=True)
+                 
+                 # dialog의 finished 시그널 사용 
+                 logging.debug(f"Connecting dialog.finished signal for {title}...")
+                 dialog.finished.connect(stop_sound_on_dialog_close) 
+                 dialog.finished.connect(lambda: _active_dialogs.remove(dialog) if dialog in _active_dialogs else None) 
+                 logging.debug(f"dialog.finished signal connected for {title}.")
+            # -------------------------------------------
 
         except Exception as e:
             logging.error(f"메인 스레드에서 알림 생성/표시 실패: {e}", exc_info=True)
 
     def play_sound(self, sound_path):
-        """(QMediaPlayer 사용) 지정된 경로의 사운드 파일을 재생합니다."""
+        """(QMediaPlayer 사용) 지정된 경로의 사운드 파일을 재생하고 플레이어 객체를 반환합니다."""
         global active_sounds
+        player = None # 반환할 플레이어 객체 초기화
         try: 
             logging.info(f"사운드 재생 시도 (QMediaPlayer): {sound_path}")
             if not os.path.exists(sound_path):
                 logging.error(f"사운드 파일 없음: {sound_path}")
-                return
+                return None # 실패 시 None 반환
 
-            # --- QMediaPlayer 객체 생성 --- 
-            player = QMediaPlayer(self) # 부모를 self로 설정
+            player = QMediaPlayer(self) # player 변수에 할당
             active_sounds.append(player) 
             logging.debug(f"  - QMediaPlayer 객체 생성 및 active_sounds 리스트 추가 완료 (총 {len(active_sounds)}개).")
 
@@ -96,36 +127,33 @@ class NotificationHelper(QObject):
             if not sound_url.isValid():
                 logging.error(f"유효하지 않은 사운드 URL: {sound_path}")
                 if player in active_sounds: active_sounds.remove(player)
-                return
+                return None # 실패 시 None 반환
 
-            # --- 미디어 콘텐츠 설정 --- 
             media_content = QMediaContent(sound_url)
             player.setMedia(media_content)
             logging.debug(f"  - setMedia({sound_url.toString()}) 호출 완료.")
-            # ------------------------
 
-            # --- 시그널 연결 (QMediaPlayer 시그널로 변경) --- 
+            # 시그널 연결
             logging.debug("  - mediaStatusChanged 연결 시도...")
             player.mediaStatusChanged.connect(self._handle_media_status_changed)
             logging.debug("  - mediaStatusChanged 연결 완료.")
             logging.debug("  - stateChanged 연결 시도...")
             player.stateChanged.connect(self._handle_media_state_changed)
             logging.debug("  - stateChanged 연결 완료.")
-            # 테스트 람다 제거
-            # -------------------------------------------
 
             # 볼륨 설정
             logging.debug("  - setVolume 시도...")
             player.setVolume(100) # QMediaPlayer 볼륨은 0-100
             logging.debug("  - setVolume 완료.")
 
-            # 재생은 mediaStatusChanged 핸들러에서 LoadedMedia 상태일 때 시작됨
-            # player.play() # 여기서 바로 호출하지 않음
+            # 재생 시작은 핸들러에서
+            return player # 성공 시 플레이어 객체 반환
 
         except Exception as e:
              logging.error(f"사운드 재생(QMediaPlayer) 중 예외 발생: {e}", exc_info=True)
-             if 'player' in locals() and player in active_sounds:
+             if player and player in active_sounds: # player가 생성되었는지 확인 후 제거
                   active_sounds.remove(player)
+             return None # 예외 발생 시 None 반환
 
     # --- 시그널 핸들러 메서드 (QMediaPlayer 용으로 수정) --- 
     def _handle_media_status_changed(self, status):
@@ -137,6 +165,15 @@ class NotificationHelper(QObject):
              return
 
         try: 
+            # --- 사용자 중지 플래그 확인 --- 
+            if sender_player.property("stoppedByUser") == True:
+                 logging.debug("    _handle_media_status_changed: stoppedByUser 플래그가 True이므로 처리를 중단합니다.")
+                 # 필요하다면 여기서 active_sounds에서 확실히 제거
+                 if sender_player in active_sounds:
+                      active_sounds.remove(sender_player)
+                 return
+            # ------------------------------
+            
             status_map = { 
                 QMediaPlayer.UnknownMediaStatus: "UnknownMediaStatus", QMediaPlayer.NoMedia: "NoMedia", 
                 QMediaPlayer.LoadingMedia: "LoadingMedia", QMediaPlayer.LoadedMedia: "LoadedMedia", 
@@ -162,11 +199,12 @@ class NotificationHelper(QObject):
                 logging.debug(f"  - 미디어 로딩 완료. 재생 시작! ({current_source})")
                 sender_player.play() # 로드 완료 후 재생 시작
             elif status == QMediaPlayer.EndOfMedia:
-                 logging.debug(f"  - 미디어 재생 완료 (EndOfMedia). ({current_source})")
-                 if sender_player in active_sounds: active_sounds.remove(sender_player)
-                 logging.debug(f"  - QMediaPlayer 객체 active_sounds 리스트에서 제거 (EndOfMedia). (남은 개수: {len(active_sounds)}개).")
+                 logging.debug(f"  - 미디어 재생 완료 (EndOfMedia). 반복 재생 시작! ({current_source})")
+                 sender_player.setPosition(0) # 처음으로 이동
+                 sender_player.play() # 다시 재생
             elif status in [QMediaPlayer.InvalidMedia, QMediaPlayer.StalledMedia]: # 오류 상태 처리 추가
                  logging.error(f"  - 미디어 오류 발생 ({status_str})! ({current_source})")
+                 # 오류 발생 시에는 제거
                  if sender_player in active_sounds: active_sounds.remove(sender_player)
 
         except Exception as e:
@@ -182,6 +220,15 @@ class NotificationHelper(QObject):
              return
              
         try: 
+            # --- 사용자 중지 플래그 확인 --- 
+            if sender_player.property("stoppedByUser") == True:
+                 logging.debug("    _handle_media_state_changed: stoppedByUser 플래그가 True이므로 처리를 중단합니다.")
+                 # 필요하다면 여기서 active_sounds에서 확실히 제거
+                 if sender_player in active_sounds:
+                      active_sounds.remove(sender_player)
+                 return
+            # ------------------------------
+
             state_map = { QMediaPlayer.StoppedState: "StoppedState", QMediaPlayer.PlayingState: "PlayingState", QMediaPlayer.PausedState: "PausedState" }
             state_str = state_map.get(state, "Unknown State Value")
             logging.debug(f"_handle_media_state_changed 호출됨. state: {state_str} ({state})")
@@ -203,16 +250,15 @@ class NotificationHelper(QObject):
                      logging.error(f"  - 재생 중지됨 (오류: {error_str}). ({current_source})")
                 else: # 정상 종료 또는 사용자에 의한 중지 등
                      logging.debug(f"  - 재생 중지됨 (StoppedState). ({current_source})")
-                 
-                # EndOfMedia 상태에서 제거되지 않았다면 여기서 제거
-                if sender_player in active_sounds: 
-                     active_sounds.remove(sender_player)
-                     logging.debug(f"  - QMediaPlayer 객체 active_sounds 리스트에서 제거 (StoppedState). (남은 개수: {len(active_sounds)}개).")
+                
+                # --- 여기서 active_sounds 에서 제거하지 않음 --- 
+                # 제거는 dialog.finished 또는 cleanup_sounds 에서 처리
             elif state == QMediaPlayer.PlayingState:
                 logging.debug(f"  - 재생 시작됨 또는 계속됨 (PlayingState). ({current_source})")
 
         except Exception as e:
             logging.error(f"_handle_media_state_changed 핸들러 오류: {e}", exc_info=True)
+            # 핸들러 자체 오류 시에는 제거 시도
             if sender_player in active_sounds: active_sounds.remove(sender_player)
     # ---------------------------------------------------------
 
