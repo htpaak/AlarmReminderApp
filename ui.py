@@ -101,6 +101,19 @@ class AlarmApp(QWidget):
                 border: 1px solid #9fdf9f; /* 조금 더 진한 녹색 테두리 */
                 font-weight: bold;
             }
+            /* --- 사운드 옵션 버튼 스타일 추가 --- */
+            QPushButton#soundOptionButton { /* 사운드 버튼 기본 스타일 */
+                padding: 5px 8px;
+                font-size: 9pt;
+                background-color: #f8f8f8;
+                border: 1px solid #c0c0c0;
+            }
+            QPushButton#soundOptionButton:checked { /* 선택된 사운드 버튼 스타일 */
+                background-color: #d9f7d9; /* 연한 녹색 */
+                border: 1px solid #9fdf9f; /* 조금 더 진한 녹색 테두리 */
+                font-weight: bold;
+            }
+            /* ------------------------------------ */
             /* --- Save Alarm 버튼 스타일 추가 --- */
             QPushButton#saveButton {
                 background-color: #3498db; /* 파란색 배경 */
@@ -175,10 +188,31 @@ class AlarmApp(QWidget):
         form_layout.addRow("Repeat on:", day_button_layout)
         # --- 요일 버튼 끝 --- 
         
-        # --- 사운드 설정 버튼 (폼 내부로 이동) --- 
+        # --- 사운드 설정 버튼 (폼 내부) --- 
+        sound_layout = QHBoxLayout()
         self.form_sound_button = QPushButton("Sound 🔊")
+        self.form_sound_button.setObjectName("soundOptionButton") # 객체 이름 설정
+        self.form_sound_button.setCheckable(True) # Checkable 설정
         self.form_sound_button.clicked.connect(self.select_sound_file)
-        form_layout.addRow("Sound:", self.form_sound_button)
+        
+        self.clear_sound_button = QPushButton("No Sound 🔇") # 텍스트 변경
+        self.clear_sound_button.setObjectName("soundOptionButton") # 객체 이름 설정
+        self.clear_sound_button.setCheckable(True) # Checkable 설정
+        self.clear_sound_button.clicked.connect(self.clear_selected_sound) 
+        # self.clear_sound_button.setEnabled(False) # 초기 활성화 상태 제거 (선택 상태로 관리)
+
+        # 버튼 그룹으로 묶어 하나만 선택되도록 함
+        self.sound_button_group = QButtonGroup(self)
+        self.sound_button_group.setExclusive(True) # 배타적 선택
+        self.sound_button_group.addButton(self.clear_sound_button)
+        self.sound_button_group.addButton(self.form_sound_button)
+        # 초기 상태: No Sound 선택
+        self.clear_sound_button.setChecked(True)
+        
+        sound_layout.addWidget(self.clear_sound_button) 
+        sound_layout.addWidget(self.form_sound_button) 
+        sound_layout.addStretch(1)
+        form_layout.addRow("Sound:", sound_layout)
         # ---------------------------------------
         
         form_layout_wrapper.addLayout(form_layout)
@@ -344,15 +378,19 @@ class AlarmApp(QWidget):
         for i, button in enumerate(self.day_buttons):
             button.setChecked(i in self.selected_alarm.selected_days)
         
-        # --- 알람 객체의 사운드 경로를 UI 임시 변수에 로드하고 버튼 텍스트 업데이트 --- 
+        # --- 알람 객체의 사운드 경로 UI 임시 변수에 로드, 버튼 텍스트 및 선택 상태 업데이트 --- 
         alarm_sound_path = self.selected_alarm.sound_path
-        self.selected_sound_path = alarm_sound_path # UI 임시 상태 업데이트
+        self.selected_sound_path = alarm_sound_path 
         if alarm_sound_path:
             file_name = os.path.basename(alarm_sound_path)
-            self.form_sound_button.setText(f"Sound ({file_name})") # 폼 버튼 텍스트
+            self.form_sound_button.setText(f"Sound ({file_name}) 🔊") 
+            # self.clear_sound_button.setEnabled(True) # Enabled 대신 Checked 사용
+            self.form_sound_button.setChecked(True) # Sound 버튼 선택
         else:
-            self.form_sound_button.setText("Sound 🔊") # 폼 버튼 텍스트
-        # ---------------------------------------------------------------------
+            self.form_sound_button.setText("Sound 🔊") 
+            # self.clear_sound_button.setEnabled(False) # Enabled 대신 Checked 사용
+            self.clear_sound_button.setChecked(True) # No Sound 버튼 선택
+        # -------------------------------------------------------------------------------------
 
         self.edit_mode = True
         self.form_title_label.setText("Edit Alarm")
@@ -428,10 +466,12 @@ class AlarmApp(QWidget):
         self.minute_combo.setCurrentText("00")
         for button in self.day_buttons:
             button.setChecked(False)
-        # --- UI 임시 사운드 선택 상태 초기화 --- 
+        # --- UI 임시 사운드 선택 상태 및 버튼 초기화 --- 
         self.selected_sound_path = None
-        self.form_sound_button.setText("Sound 🔊") # 폼 버튼 텍스트 초기화
-        # -------------------------------------
+        self.form_sound_button.setText("Sound 🔊") 
+        # self.clear_sound_button.setEnabled(False) # Enabled 대신 Checked 사용
+        self.clear_sound_button.setChecked(True) # No Sound 버튼을 기본 선택으로
+        # -----------------------------------------
         self.clear_selection() 
         logging.debug("입력 폼 리셋됨.")
 
@@ -445,34 +485,39 @@ class AlarmApp(QWidget):
         super().closeEvent(event) # 기본 동작 수행
 
     def select_sound_file(self):
-        """(수정됨) 폼 내부 Sound 버튼 클릭 시 파일 선택하고 UI 임시 변수에 저장."""
-        # 알람 선택 여부 체크 제거 (폼이 활성화 되어있으면 항상 가능)
-        # if not self.selected_alarm: ... 제거
-
+        """폼 내부 Sound 버튼 클릭 시 파일 선택하고 UI 임시 변수에 저장."""
+        # Sound 버튼 클릭 시 -> 파일을 선택하면 Sound 버튼이 선택됨
         options = QFileDialog.Options()
         file_path, _ = QFileDialog.getOpenFileName(
             self, "Select Alarm Sound", "", "Sound Files (*.mp3 *.wav);;All Files (*)", options=options
         )
         
         if file_path:
-            # UI 임시 변수에 경로 저장
             self.selected_sound_path = file_path
             logging.info(f"폼에서 사운드 파일 선택됨 (임시 저장): {file_path}")
-            # 폼 버튼 텍스트 업데이트
             file_name = os.path.basename(file_path)
-            self.form_sound_button.setText(f"Sound ({file_name})")
-            # 알람 객체 직접 수정 및 시그널 발생 로직 제거
-            # self.selected_alarm.sound_path = file_path
-            # self.alarms_updated.emit(self.alarms)
-            # self.update_alarm_listwidget()
+            self.form_sound_button.setText(f"Sound ({file_name}) 🔊")
+            # self.clear_sound_button.setEnabled(True) # Enabled 대신 Checked 사용
+            self.form_sound_button.setChecked(True) # Sound 버튼 선택 상태로
         else:
-            # 파일 선택 취소 시
             logging.info("폼에서 사운드 파일 선택 취소됨.")
-            # 취소 시에는 임시 경로를 None으로 설정할 수 있음 (선택적)
-            # self.selected_sound_path = None 
-            # self.form_sound_button.setText("Sound 🔊")
-            # 여기서는 선택 취소 시 아무것도 변경하지 않음 (기존 선택 유지)
+            # 파일 선택 취소 시: 
+            # - 만약 이전에 선택된 사운드가 없었다면 No Sound 선택 유지
+            # - 만약 이전에 선택된 사운드가 있었다면 해당 사운드 선택 유지 (텍스트는 유지됨)
+            # 즉, 파일 선택 취소 시에는 버튼 선택 상태 변경 없음
             pass
+
+    def clear_selected_sound(self):
+        """폼에서 선택된 사운드를 제거(None으로 설정)합니다."""
+        # No Sound 버튼 클릭 시 -> No Sound 버튼이 선택됨
+        # if self.selected_sound_path is None:
+        #      return # 이미 No Sound가 선택된 상태일 수 있으므로 이 체크 제거
+        
+        logging.info("폼에서 선택된 사운드 제거됨.")
+        self.selected_sound_path = None
+        self.form_sound_button.setText("Sound 🔊") # 기본 텍스트로 복원
+        # self.clear_sound_button.setEnabled(False) # Enabled 대신 Checked 사용
+        self.clear_sound_button.setChecked(True) # No Sound 버튼 선택 상태로
 
 # 테스트용 코드 (ui.py 직접 실행 시)
 if __name__ == '__main__':
