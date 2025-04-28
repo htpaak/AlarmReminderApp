@@ -275,7 +275,7 @@ class AlarmApp(QWidget):
         self.setLayout(main_layout)
         self.setWindowTitle('Alarm Reminder App')
         self.setWindowIcon(QIcon('assets/icon.svg')) # 윈도우 아이콘 설정
-        self.setGeometry(300, 300, 600, 400) # 창 크기 및 위치 설정
+        # self.setGeometry(300, 300, 600, 400) # 창 크기 및 위치 설정 (center() 호출 후 실행되어 중앙 정렬 무시함)
 
     def center(self):
         """창을 화면 중앙으로 이동시킵니다."""
