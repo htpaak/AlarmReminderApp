@@ -14,6 +14,27 @@ from PyQt5.QtMultimedia import QSoundEffect
 
 from alarm import Alarm, WEEKDAYS
 
+# main.py 에서 resource_path 함수 가져오기
+# 순환 참조를 피하기 위해 함수 정의를 복사하거나 별도 모듈로 분리하는 것이 더 좋을 수 있음
+# 여기서는 임시로 main을 import 시도 (실행 시점에 main 모듈이 이미 로드되어 있어야 함)
+# try:
+#     from __main__ import resource_path # 패키징 시 main이 __main__으로 실행될 수 있음
+# except ImportError:
+#     # 개발 환경 또는 다른 방식으로 실행될 경우 직접 정의 (main.py의 함수와 동일)
+
+# 함수 정의를 직접 포함 (main.py와 동일하게 수정)
+import os
+import sys
+def resource_path(relative_path):
+    """ Get absolute path to resource, works for dev and for PyInstaller """
+    try:
+        # PyInstaller creates a temp folder and stores path in _MEIPASS
+        base_path = sys._MEIPASS
+    except Exception:
+        # Running in development mode: Use the directory of the current file (__file__)
+        base_path = os.path.abspath(os.path.dirname(__file__))
+    return os.path.join(base_path, relative_path)
+
 class AlarmApp(QWidget):
     # 알람 목록 변경 시 메인 로직에 알리기 위한 시그널
     alarms_updated = pyqtSignal(list)
@@ -38,12 +59,15 @@ class AlarmApp(QWidget):
         self.center() # 화면 중앙으로 이동시키는 메서드 호출
         
         # --- 창 아이콘 설정 --- 
-        app_icon = QIcon("assets/icon.svg")
+        # app_icon = QIcon("assets/icon.svg") # 기존 SVG 사용 코드
+        app_icon_path = resource_path("assets/icon.ico") # .ico 파일 및 절대 경로 사용
+        app_icon = QIcon(app_icon_path)
         if not app_icon.isNull():
              self.setWindowIcon(app_icon)
-             print("애플리케이션 아이콘 설정 완료: assets/icon.svg")
+             # print("애플리케이션 아이콘 설정 완료: ", app_icon_path)
         else:
-             print("경고: assets/icon.svg 파일을 찾을 수 없거나 유효하지 않습니다.")
+             # print(f"경고: {app_icon_path} 파일을 찾을 수 없거나 유효하지 않습니다.")
+             pass # 최종본에서는 출력 제거
         # ---------------------
 
         self.setStyleSheet("""
@@ -399,7 +423,7 @@ class AlarmApp(QWidget):
 
         self.setLayout(main_layout)
         self.setWindowTitle('Alarm Reminder App')
-        self.setWindowIcon(QIcon('assets/icon.svg')) # 윈도우 아이콘 설정
+        # self.setWindowIcon(QIcon('assets/icon.svg')) # 윈도우 아이콘 설정 (중복 제거: initUI 시작 부분에서 .ico로 이미 설정함)
         # self.setGeometry(300, 300, 600, 400) # 창 크기 및 위치 설정 (center() 호출 후 실행되어 중앙 정렬 무시함)
 
     def center(self):

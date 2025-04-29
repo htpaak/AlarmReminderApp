@@ -14,6 +14,19 @@ import ctypes
 import platform
 import schedule # schedule 모듈 임포트 추가
 
+# --- Resource Path Helper ---
+def resource_path(relative_path):
+    """ Get absolute path to resource, works for dev and for PyInstaller """
+    try:
+        # PyInstaller creates a temp folder and stores path in _MEIPASS
+        base_path = sys._MEIPASS
+    except Exception:
+        # Running in development mode: Use the directory of the current file (__file__)
+        base_path = os.path.abspath(os.path.dirname(__file__))
+
+    return os.path.join(base_path, relative_path)
+# ---------------------------
+
 # log_setup 모듈에서 setup_logging 함수 임포트
 # from log_setup import setup_logging
 
@@ -22,32 +35,76 @@ from storage import load_alarms, save_alarms
 # from ui import AlarmApp # PyQt5 버전으로 변경
 from ui import AlarmApp
 from scheduler import start_scheduler, stop_scheduler, update_scheduled_alarm, remove_scheduled_alarm, _scheduler_thread # scheduler_thread 임포트 추가
-from notification import notification_helper, cleanup_sounds 
+# from notification import notification_helper, cleanup_sounds # notification_helper 제거
+from notification import cleanup_sounds 
 
-# --- 로깅 설정 (가장 먼저 수행, 가장 단순한 형태로 변경) --- 
-log_dir = "logs"
-if not os.path.exists(log_dir):
-    try:
-        os.makedirs(log_dir)
-    except OSError as e:
-        print(f"Error creating log directory {log_dir}: {e}", file=sys.stderr)
-        # 로그 디렉토리 생성 실패 시 처리를 추가할 수 있음 (예: 임시 디렉토리 사용)
-log_file_path = os.path.join(log_dir, "debug.log")
+# --- 로깅 설정 수정 ---
+# 패키지된 상태인지 확인 (PyInstaller는 sys.frozen 속성을 설정함)
+is_packaged = getattr(sys, 'frozen', False)
 
-try:
-    # force=True 를 사용하여 기존 핸들러가 있어도 재설정 시도
-    logging.basicConfig(
-        level=logging.DEBUG,
-        format='%(asctime)s [%(levelname)s] %(message)s',
-        filename=log_file_path, # 콘솔 핸들러 제거, 파일 핸들러만 사용
-        filemode='w', # 매번 새로 쓰기 (이전 로그 제거)
-        encoding='utf-8',
-        force=True 
-    )
-    logging.debug("--- Logging Setup Complete (Simplified) ---")
-except Exception as e:
-    print(f"Error during logging.basicConfig: {e}", file=sys.stderr)
-# -----------------------------------------------------------
+if not is_packaged:
+    # 소스 코드로 실행 중일 때만 파일 로깅 설정
+    log_dir = "logs"
+    if not os.path.exists(log_dir):
+        try:
+            os.makedirs(log_dir)
+        except OSError as e:
+            # 로그 디렉토리 생성 실패 시 오류 메시지 출력 (콘솔에만)
+            print(f"Error creating log directory {log_dir}: {e}", file=sys.stderr)
+            log_file_path = None # 경로 None으로 설정
+        else:
+             log_file_path = os.path.join(log_dir, "debug.log")
+    else:
+        log_file_path = os.path.join(log_dir, "debug.log")
+
+    if log_file_path: # 로그 파일 경로가 유효할 때만 파일 핸들러 설정
+        try:
+            logging.basicConfig(
+                level=logging.DEBUG,
+                format='%(asctime)s [%(levelname)s] %(message)s',
+                filename=log_file_path,
+                filemode='w',
+                encoding='utf-8',
+                force=True
+            )
+            logging.debug("--- File Logging Setup Complete (Running from Source) ---")
+        except Exception as e:
+            print(f"Error during file logging setup: {e}", file=sys.stderr)
+    else:
+        # 로그 파일 경로가 없으면 (디렉토리 생성 실패 등) 기본 콘솔 로깅 설정
+         logging.basicConfig(level=logging.WARNING, format='%(asctime)s [%(levelname)s] %(message)s')
+         logging.warning("--- File Logging Skipped (Log directory issue), Basic Config Active ---")
+
+else:
+    # 패키지된 상태로 실행 중일 때
+    # try:
+        # # 실행 파일이 있는 디렉토리 찾기
+        # if getattr(sys, 'frozen', False):
+        #     exe_dir = os.path.dirname(sys.executable)
+        # else:
+        #     # (이론상 frozen이 False면 이 else 블록에 오지 않지만 안전하게 처리)
+        #     exe_dir = os.path.dirname(__file__)
+        # 
+        # log_file_path = os.path.join(exe_dir, "packaged_debug.log")
+        # 
+        # logging.basicConfig(
+        #     level=logging.DEBUG, # DEBUG 레벨로 설정하여 모든 정보 기록
+        #     format='%(asctime)s [%(levelname)s] %(message)s',
+        #     filename=log_file_path,
+        #     filemode='w', # 실행 시마다 새로 쓰기
+        #     encoding='utf-8',
+        #     force=True
+        # )
+        # logging.info("--- Logging Setup Complete (Running Packaged - Logging to File) ---")
+        # 
+    # except Exception as e:
+    #     # 파일 로깅 설정 실패 시 (예: 쓰기 권한 없음)
+    #     # 이 경우 로그를 볼 수 없지만, 앱 실행은 계속 시도
+    #     print(f"Error setting up file logging in packaged mode: {e}", file=sys.stderr) # 콘솔에라도 출력 시도
+    #     logging.disable(logging.CRITICAL) # 로깅 완전 비활성화
+    
+    # 최종 배포 시 로깅 비활성화 복원
+    logging.disable(logging.CRITICAL)
 
 # --- 전역 예외 처리 후크 --- 
 def handle_exception(exc_type, exc_value, exc_traceback):
@@ -66,11 +123,13 @@ if platform.system() == "Windows":
     myappid = u'MyCompanyName.MyProductName.AlarmReminderApp.1' # 고유 ID 문자열
     try:
         ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(myappid)
-        logging.info(f"AppUserModelID 설정 완료: {myappid}")
+        # logging.info(f"AppUserModelID 설정 완료: {myappid}") # 로깅 비활성화됨
     except AttributeError:
-        logging.warning("ctypes 또는 SetCurrentProcessExplicitAppUserModelID를 사용할 수 없습니다.")
+        # logging.warning("ctypes 또는 SetCurrentProcessExplicitAppUserModelID를 사용할 수 없습니다.") # 로깅 비활성화됨
+        pass # 최종본에서는 오류 처리 무시 (로깅 불가)
     except Exception as e:
-        logging.error(f"AppUserModelID 설정 중 오류 발생: {e}")
+        # logging.error(f"AppUserModelID 설정 중 오류 발생: {e}") # 로깅 비활성화됨
+        pass # 최종본에서는 오류 처리 무시 (로깅 불가)
 # --------------------------------------------------------
 
 # --- DPI 스케일링 활성화 --- 
@@ -93,7 +152,9 @@ app.setQuitOnLastWindowClosed(False)
 
 # --- 시스템 트레이 아이콘 설정 --- 
 logging.debug("Setting up system tray icon...")
-tray_icon = QSystemTrayIcon(QIcon("assets/icon.svg"), parent=app)
+tray_icon_path = resource_path("assets/icon.ico") # 경로 가져오기
+logging.debug(f"Tray icon path: {tray_icon_path}") # 경로 로깅 추가 (테스트용)
+tray_icon = QSystemTrayIcon(QIcon(tray_icon_path), parent=app) # 절대 경로 사용
 tray_icon.setToolTip("AlarmReminderApp")
 
 # 트레이 메뉴 생성

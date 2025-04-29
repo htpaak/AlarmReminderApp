@@ -1,6 +1,7 @@
 import logging
 import platform
 import os
+import sys
 
 # PyQt5 QApplication 임포트 (위치 조정을 위해)
 from PyQt5.QtWidgets import QApplication # QMessageBox 제거
@@ -24,8 +25,17 @@ from custom_notification_dialog import CustomNotificationDialog
 _active_dialogs = [] # 생성된 다이얼로그 참조 유지 (이름 유지)
 active_sounds = [] # 재생 중인 QMediaPlayer 객체 참조 유지 (이름 통일)
 
-# 앱 아이콘 경로 (main.py와 동일하게)
-APP_ICON_PATH = "assets/icon.svg"
+# --- Resource Path Helper --- (main.py와 동일)
+def resource_path(relative_path):
+    """ Get absolute path to resource, works for dev and for PyInstaller """
+    try:
+        # PyInstaller creates a temp folder and stores path in _MEIPASS
+        base_path = sys._MEIPASS
+    except Exception:
+        # Running in development mode: Use the directory of the current file (__file__)
+        base_path = os.path.abspath(os.path.dirname(__file__))
+    return os.path.join(base_path, relative_path)
+# ---------------------------
 
 # --- 알림 표시를 위한 헬퍼 클래스 --- 
 class NotificationHelper(QObject):
@@ -34,12 +44,13 @@ class NotificationHelper(QObject):
 
     def __init__(self):
         super().__init__()
-        # 아이콘 로드 시도 및 결과 로깅 
-        self.app_icon = QIcon(APP_ICON_PATH)
+        # 아이콘 로드 시도 및 결과 로깅 (resource_path 및 .ico 사용)
+        icon_path = resource_path("assets/icon.ico")
+        self.app_icon = QIcon(icon_path)
         if self.app_icon.isNull():
-            logging.warning(f"NotificationHelper: 앱 아이콘 로드 실패 - {APP_ICON_PATH}")
+            logging.warning(f"NotificationHelper: 앱 아이콘 로드 실패 - {icon_path}")
         else:
-            logging.debug("NotificationHelper: 앱 아이콘 로드 성공.")
+            logging.debug(f"NotificationHelper: 앱 아이콘 로드 성공 - {icon_path}")
 
     @pyqtSlot(str, str, str) # 슬롯 정의 유지
     def create_and_show_dialog(self, title, message, sound_path):
@@ -317,12 +328,11 @@ def cleanup_sounds():
             logging.error(f"QMediaPlayer 정리 중 오류: {e}", exc_info=True)
     logging.debug("QMediaPlayer 정리 완료.")
 
-# NotificationHelper 인스턴스 생성 
-notification_helper = NotificationHelper()
+# NotificationHelper 인스턴스 생성 (제거)
+# notification_helper = NotificationHelper()
 
 # QApplication 종료 시 cleanup_sounds 함수 호출 연결
 # main.py의 if __name__ == '__main__': 블록 마지막 app.exec_() 전에 연결 필요
-# 예: app.aboutToQuit.connect(cleanup_sounds)
 
 # 이전 plyer 코드 제거
 # def show_notification(title: str, message: str):
