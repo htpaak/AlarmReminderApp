@@ -341,7 +341,7 @@ def cleanup_sounds():
 #         notification.notify(
 #             title=title,
 #             message=message,
-#             app_name='MyCompanyName.MyProductName.AlarmReminderApp.1', # AppUserModelID 와 일치시켜야 함
+#             app_name='MyCompanyName.MyProductName.AlarmReminderPAAK.1', # AppUserModelID 와 일치시켜야 함
 #             # app_icon='path/to/icon.ico', # 아이콘 경로 지정 (선택 사항)
 #             timeout=10 # 알림 표시 시간 (초)
 #         )

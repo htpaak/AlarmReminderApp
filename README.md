@@ -1,16 +1,16 @@
-# AlarmReminderApp ⏰🔔
+# AlarmReminderPAAK ⏰🔔
 
 A simple and easy-to-use desktop alarm and reminder application. Get notified at specified times and play desired sounds in a Windows environment. 😄
 
-[![GitHub release](https://img.shields.io/github/release/htpaak/AlarmReminderApp.svg?logo=github)](https://github.com/htpaak/AlarmReminderApp/releases/latest)
-[![GitHub downloads](https://img.shields.io/github/downloads/htpaak/AlarmReminderApp/latest/total.svg?logo=github)](https://github.com/htpaak/AlarmReminderApp/releases/latest)
-[![GitHub downloads](https://img.shields.io/github/downloads/htpaak/AlarmReminderApp/total.svg?logo=github)](https://github.com/htpaak/AlarmReminderApp/releases)
+[![GitHub release](https://img.shields.io/github/release/htpaak/AlarmReminderPAAK.svg?logo=github)](https://github.com/htpaak/AlarmReminderPAAK/releases/latest)
+[![GitHub downloads](https://img.shields.io/github/downloads/htpaak/AlarmReminderPAAK/latest/total.svg?logo=github)](https://github.com/htpaak/AlarmReminderPAAK/releases/latest)
+[![GitHub downloads](https://img.shields.io/github/downloads/htpaak/AlarmReminderPAAK/total.svg?logo=github)](https://github.com/htpaak/AlarmReminderPAAK/releases)
 
 ## Quick Links 🔗
 
-- [⬇️ Download Latest Release](https://github.com/htpaak/AlarmReminderApp/releases/latest)
-- [⭐ GitHub Repository](https://github.com/htpaak/AlarmReminderApp)
-- [💬 Feedback & Discussions](https://github.com/htpaak/AlarmReminderApp/discussions)
+- [⬇️ Download Latest Release](https://github.com/htpaak/AlarmReminderPAAK/releases/latest)
+- [⭐ GitHub Repository](https://github.com/htpaak/AlarmReminderPAAK)
+- [💬 Feedback & Discussions](https://github.com/htpaak/AlarmReminderPAAK/discussions)
 
 ## Key Features 🌟
 
@@ -37,9 +37,9 @@ A simple and easy-to-use desktop alarm and reminder application. Get notified at
 
 ## Installation 🚀
 
-1.  Download the latest executable file (`AlarmReminderApp_vX.Y.Z.exe`) from the [Releases Page](https://github.com/htpaak/AlarmReminderApp/releases/latest).
+1.  Download the latest executable file (`AlarmReminderPAAK_vX.Y.Z.exe`) from the [Releases Page](https://github.com/htpaak/AlarmReminderPAAK/releases/latest).
 2.  Run the downloaded `.exe` file. No separate installation process is required.
-3.  Launch AlarmReminderApp and start setting up your alarms! 🎉
+3.  Launch AlarmReminderPAAK and start setting up your alarms! 🎉
 
 ## How to Use 📖
 

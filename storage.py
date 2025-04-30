@@ -6,7 +6,7 @@ from alarm import Alarm
 import uuid
 
 # 저장될 앱 이름 및 파일 이름 정의
-APP_NAME = "AlarmReminderApp"
+APP_NAME = "AlarmReminderPAAK"
 FILE_NAME = "alarms.json"
 
 # 데이터 저장 경로 설정

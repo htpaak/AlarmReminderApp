@@ -120,7 +120,7 @@ sys.excepthook = handle_exception
 
 # --- AppUserModelID 설정 (Windows 작업 표시줄 아이콘용) --- 
 if platform.system() == "Windows":
-    myappid = u'MyCompanyName.MyProductName.AlarmReminderApp.1' # 고유 ID 문자열
+    myappid = u'MyCompanyName.MyProductName.AppAlarmReminderPAAK.1' # 고유 ID 문자열
     try:
         ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(myappid)
         # logging.info(f"AppUserModelID 설정 완료: {myappid}") # 로깅 비활성화됨
@@ -155,7 +155,7 @@ logging.debug("Setting up system tray icon...")
 tray_icon_path = resource_path("assets/icon.ico") # 경로 가져오기
 logging.debug(f"Tray icon path: {tray_icon_path}") # 경로 로깅 추가 (테스트용)
 tray_icon = QSystemTrayIcon(QIcon(tray_icon_path), parent=app) # 절대 경로 사용
-tray_icon.setToolTip("AlarmReminderApp")
+tray_icon.setToolTip("AlarmReminderPAAKApp")
 
 # 트레이 메뉴 생성
 menu = QMenu()

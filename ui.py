@@ -53,7 +53,7 @@ class AlarmApp(QWidget):
         self.update_alarm_listwidget()
 
     def initUI(self):
-        self.setWindowTitle("AlarmReminderApp") # 띄어쓰기 제거
+        self.setWindowTitle("") # 띄어쓰기 제거
         self.resize(600, 700) # 너비와 높이 증가 (높이 700으로 수정)
         self.setMinimumSize(600, 700) # 최소 너비와 높이 설정 (높이 700으로 수정)
         self.center() # 화면 중앙으로 이동시키는 메서드 호출
@@ -644,7 +644,7 @@ class AlarmApp(QWidget):
         # 트레이 아이콘 메시지 표시 (정보, 제목, 내용, 아이콘, 시간(ms))
         self.tray_icon.showMessage(
             "Application Minimized",
-            "AlarmReminderApp is running in the background.",
+            "AlarmReminderPAAK is running in the background.",
             QSystemTrayIcon.Information, # 메시지 아이콘 타입
             2000 # 2초 동안 표시
         )
