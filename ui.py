@@ -9,7 +9,7 @@ from PyQt5.QtWidgets import (
     QListView, QFileDialog, QSystemTrayIcon
 )
 from PyQt5.QtCore import Qt, pyqtSignal, QSize, QUrl, QTime
-from PyQt5.QtGui import QColor, QFont, QIcon
+from PyQt5.QtGui import QColor, QFont, QIcon, QDesktopServices
 from PyQt5.QtMultimedia import QSoundEffect
 
 from alarm import Alarm, WEEKDAYS
@@ -254,9 +254,9 @@ class AlarmApp(QWidget):
              }
 
             /* === 목록 조작 버튼 (Edit, Delete, Toggle) === */
-            QPushButton#editButton, QPushButton#deleteButton, QPushButton#toggleButton { /* 각 버튼 객체 이름 설정 필요 */
+            QPushButton#editButton, QPushButton#deleteButton, QPushButton#toggleButton, QPushButton#feedbackButton { /* 각 버튼 객체 이름 설정 필요 + feedbackButton 추가 */
                  font-size: 9pt;
-                 padding: 5px 8px;
+                 padding: 5px 8px; /* 동일한 패딩 적용 */
             }
             QPushButton#editButton {
                 /* 필요시 개별 스타일 */
@@ -394,7 +394,7 @@ class AlarmApp(QWidget):
         self.alarm_listwidget.itemDoubleClicked.connect(self.toggle_alarm_enabled)
         list_layout_wrapper.addWidget(self.alarm_listwidget)
 
-        # 목록 조작 버튼 (Sound 버튼 제거)
+        # 목록 조작 버튼
         list_button_layout = QHBoxLayout()
         self.edit_button = QPushButton("Edit ✏️")
         self.edit_button.setObjectName("editButton")
@@ -411,9 +411,21 @@ class AlarmApp(QWidget):
         list_button_layout.addWidget(self.edit_button)
         list_button_layout.addWidget(self.delete_button)
         list_button_layout.addWidget(self.toggle_button)
-        list_button_layout.addStretch(1)
+        list_button_layout.addStretch(1) # 기존 버튼과 새 버튼 사이에 공간 추가
+
+        # --- 피드백 버튼 추가 ---
+        self.feedback_button = QPushButton("💬") # 이모지 사용
+        self.feedback_button.setObjectName("feedbackButton") # 객체 이름 설정
+        self.feedback_button.setToolTip("Send Feedback") # 툴팁 설정
+        # 버튼 크기 고정 (선택 사항, 너무 커지지 않도록)
+        # self.feedback_button.setFixedSize(QSize(40, 40)) # 예시 크기 -> 주석 처리하여 높이 맞춤
+        # self.feedback_button.setStyleSheet("font-size: 14pt;") # 이모지 크기 조절
+        self.feedback_button.clicked.connect(self.open_feedback_link) # 클릭 시그널 연결
+        list_button_layout.addWidget(self.feedback_button)
+        # -----------------------
+
         list_layout_wrapper.addLayout(list_button_layout)
-        
+
         main_layout.addWidget(list_frame)
 
         # --- 스트레치 비율 설정 --- 
@@ -685,6 +697,14 @@ class AlarmApp(QWidget):
         self.form_sound_button.setText("Sound 🔊") # 버튼 텍스트 원래대로 복구
         # self.form_sound_button.setChecked(False) # 그룹 관리로 불필요
         self.clear_sound_button.setChecked(True) # No Sound 버튼을 선택 상태로 변경
+
+    def open_feedback_link(self):
+        """피드백 링크(GitHub Discussions)를 기본 웹 브라우저에서 엽니다."""
+        feedback_url = QUrl("https://github.com/htpaak/AlarmReminderPAAK/discussions")
+        if not QDesktopServices.openUrl(feedback_url):
+            logging.error(f"피드백 링크 열기 실패: {feedback_url.toString()}")
+            # 사용자에게 링크 열기 실패 메시지 표시 (선택 사항)
+            QMessageBox.warning(self, "Link Error", f"Could not open the feedback page:\n{feedback_url.toString()}\nPlease open it manually in your browser.")
 
 # 테스트용 코드 (ui.py 직접 실행 시)
 if __name__ == '__main__':
