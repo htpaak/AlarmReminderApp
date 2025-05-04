@@ -9,9 +9,10 @@ from PyQt5.QtWidgets import (
     QListView, QFileDialog, QSystemTrayIcon, QSpacerItem,
     QInputDialog,
     QDialog, QTabWidget, QScrollArea, QGridLayout,
-    QAction # QAction 임포트 추가
+    QAction,
+    QLayout, QStyle # QLayout, QStyle 임포트 추가
 )
-from PyQt5.QtCore import Qt, pyqtSignal, QSize, QUrl, QTime
+from PyQt5.QtCore import Qt, pyqtSignal, QSize, QUrl, QTime, QRect, QPoint # QRect, QPoint 임포트 추가
 from PyQt5.QtGui import QColor, QFont, QIcon, QDesktopServices
 from PyQt5.QtMultimedia import QSoundEffect
 
@@ -37,6 +38,114 @@ def resource_path(relative_path):
         # Running in development mode: Use the directory of the current file (__file__)
         base_path = os.path.abspath(os.path.dirname(__file__))
     return os.path.join(base_path, relative_path)
+
+# --- Flow Layout Class (Standard PyQt Example) ---
+class FlowLayout(QLayout):
+    def __init__(self, parent=None, margin=-1, hSpacing=-1, vSpacing=-1):
+        super(FlowLayout, self).__init__(parent)
+        self._hSpacing = hSpacing
+        self._vSpacing = vSpacing
+        self._items = []
+        self.setContentsMargins(margin, margin, margin, margin)
+
+    def __del__(self):
+        del self._items[:]
+
+    def addItem(self, item):
+        self._items.append(item)
+
+    def horizontalSpacing(self):
+        if self._hSpacing >= 0:
+            return self._hSpacing
+        else:
+            return self.smartSpacing(QStyle.PM_LayoutHorizontalSpacing)
+
+    def verticalSpacing(self):
+        if self._vSpacing >= 0:
+            return self._vSpacing
+        else:
+            return self.smartSpacing(QStyle.PM_LayoutVerticalSpacing)
+
+    def count(self):
+        return len(self._items)
+
+    def itemAt(self, index):
+        if 0 <= index < len(self._items):
+            return self._items[index]
+        else:
+            return None
+
+    def takeAt(self, index):
+        if 0 <= index < len(self._items):
+            return self._items.pop(index)
+        else:
+            return None
+
+    def expandingDirections(self):
+        return Qt.Orientations(Qt.Orientation(0))
+
+    def hasHeightForWidth(self):
+        return True
+
+    def heightForWidth(self, width):
+        return self.doLayout(QRect(0, 0, width, 0), True)
+
+    def setGeometry(self, rect):
+        super(FlowLayout, self).setGeometry(rect)
+        self.doLayout(rect, False)
+
+    def sizeHint(self):
+        return self.minimumSize()
+
+    def minimumSize(self):
+        size = QSize()
+        for item in self._items:
+            size = size.expandedTo(item.minimumSize())
+
+        margins = self.contentsMargins()
+        size += QSize(margins.left() + margins.right(), margins.top() + margins.bottom())
+        return size
+
+    def doLayout(self, rect, testOnly):
+        left, top, right, bottom = self.getContentsMargins()
+        effectiveRect = rect.adjusted(+left, +top, -right, -bottom)
+        x = effectiveRect.x()
+        y = effectiveRect.y()
+        lineHeight = 0
+
+        for item in self._items:
+            wid = item.widget()
+            spaceX = self.horizontalSpacing()
+            if spaceX == -1:
+                spaceX = wid.style().layoutSpacing(QSizePolicy.PushButton, QSizePolicy.PushButton, Qt.Horizontal)
+            spaceY = self.verticalSpacing()
+            if spaceY == -1:
+                spaceY = wid.style().layoutSpacing(QSizePolicy.PushButton, QSizePolicy.PushButton, Qt.Vertical)
+
+            nextX = x + item.sizeHint().width() + spaceX
+            if nextX - spaceX > effectiveRect.right() and lineHeight > 0:
+                x = effectiveRect.x()
+                y = y + lineHeight + spaceY
+                nextX = x + item.sizeHint().width() + spaceX
+                lineHeight = 0
+
+            if not testOnly:
+                item.setGeometry(QRect(QPoint(x, y), item.sizeHint()))
+
+            x = nextX
+            lineHeight = max(lineHeight, item.sizeHint().height())
+
+        return y + lineHeight - rect.y() + bottom
+
+    def smartSpacing(self, pm):
+        parent = self.parent()
+        if parent is None:
+            return -1
+        elif parent.isWidgetType():
+            return parent.style().pixelMetric(pm, None, parent)
+        else:
+            return parent.spacing()
+# --- Flow Layout End ---
 
 # --- 이모지 데이터 --- (카테고리별 확장된 이모지)
 EMOJI_DATA: Dict[str, List[str]] = {
@@ -218,25 +327,35 @@ class EmojiPickerDialog(QDialog):
         # 각 카테고리별 탭 생성
         for category, emojis in EMOJI_DATA.items():
             tab_widget = QWidget()
-            tab_layout = QVBoxLayout(tab_widget) # 스크롤 영역을 위한 레이아웃
+            # --- 탭 위젯 레이아웃 변경 불필요 --- 
+            # tab_layout = QVBoxLayout(tab_widget) # 스크롤 영역만 포함하므로 불필요
             
-            scroll_area = QScrollArea() # 스크롤 가능한 영역
-            scroll_area.setWidgetResizable(True) # 스크롤 영역 내부 위젯 크기 자동 조절
+            scroll_area = QScrollArea(tab_widget) # 부모를 tab_widget으로 바로 설정
+            scroll_area.setWidgetResizable(True)
+            scroll_area.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff) 
+            scroll_area.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)  
+            # 스크롤 영역이 탭 위젯을 채우도록 레이아웃 설정
+            tab_fill_layout = QVBoxLayout(tab_widget)
+            tab_fill_layout.setContentsMargins(0,0,0,0)
+            tab_fill_layout.addWidget(scroll_area)
+
             scroll_content = QWidget() # 스크롤될 내용 위젯
-            grid_layout = QGridLayout(scroll_content) # 이모지 버튼 그리드
-            grid_layout.setSpacing(5) # 버튼 간격
+            # --- GridLayout 대신 FlowLayout 사용 --- 
+            flow_layout = FlowLayout(scroll_content, margin=5, hSpacing=5, vSpacing=5) # FlowLayout 적용
+            # grid_layout = QGridLayout(scroll_content) 
+            # grid_layout.setSpacing(5) 
+            # ---------------------------------------
             scroll_area.setWidget(scroll_content)
             
-            tab_layout.addWidget(scroll_area) # 탭에 스크롤 영역 추가
+            # tab_layout.addWidget(scroll_area) # 위에서 tab_fill_layout으로 대체됨
             self.tabs.addTab(tab_widget, category)
 
-            # 그리드에 이모지 버튼 추가
-            row, col = 0, 0
-            cols_per_row = 10 # 한 줄에 표시할 이모지 수
+            # --- FlowLayout에 이모지 버튼 추가 --- 
+            # row, col, cols_per_row 등 그리드 관련 변수 제거
             for emoji in emojis:
                 button = QPushButton(emoji)
-                button.setFixedSize(QSize(45, 45)) # 크기 유지 (45x45)
-                # --- 폰트 패밀리 명시적으로 지정 --- 
+                button.setFixedSize(QSize(45, 45)) 
+                button.setToolTip(f"Emoji: {emoji}") 
                 button.setStyleSheet("""
                     QPushButton {
                         font-family: "Segoe UI Emoji", "Segoe UI Symbol", "Apple Color Emoji", "Noto Color Emoji", sans-serif; /* 이모지 지원 폰트 우선 지정 */
@@ -253,21 +372,15 @@ class EmojiPickerDialog(QDialog):
                         background-color: #d0d0d0;
                     }
                 """)
-                # ---------------------------------
                 button.clicked.connect(lambda _, e=emoji: self.emoji_selected(e))
-                grid_layout.addWidget(button, row, col)
-                
-                col += 1
-                if col >= cols_per_row:
-                    col = 0
-                    row += 1
+                flow_layout.addWidget(button) # FlowLayout에 추가
+            # -------------------------------------
             
-            # 마지막 행이 꽉 차지 않았을 경우 공간 채우기 방지
-            grid_layout.setRowStretch(row + 1, 1)
-            grid_layout.setColumnStretch(cols_per_row, 1)
+            # --- 그리드 관련 스트레치 제거 --- 
+            # grid_layout.setRowStretch(row + 1, 1)
+            # -----------------------------
 
-        # 다이얼로그 크기 조정
-        self.resize(500, 400) # 적절한 크기로 설정
+        self.resize(500, 400)
 
     def emoji_selected(self, emoji: str):
         """이모지 버튼 클릭 시 호출"""
