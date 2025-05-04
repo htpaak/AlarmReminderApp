@@ -1,12 +1,15 @@
 import sys
 import logging
 import os # os 모듈 임포트
-from typing import List, Callable, Optional, Set
+from typing import List, Callable, Optional, Set, Dict
 from PyQt5.QtWidgets import (
     QApplication, QWidget, QVBoxLayout, QHBoxLayout, QFormLayout, 
     QLabel, QLineEdit, QComboBox, QPushButton, QListWidget, 
     QMessageBox, QListWidgetItem, QFrame, QSizePolicy, QDesktopWidget, QButtonGroup,
-    QListView, QFileDialog, QSystemTrayIcon
+    QListView, QFileDialog, QSystemTrayIcon, QSpacerItem,
+    QInputDialog,
+    QDialog, QTabWidget, QScrollArea, QGridLayout,
+    QAction # QAction 임포트 추가
 )
 from PyQt5.QtCore import Qt, pyqtSignal, QSize, QUrl, QTime
 from PyQt5.QtGui import QColor, QFont, QIcon, QDesktopServices
@@ -35,6 +38,171 @@ def resource_path(relative_path):
         base_path = os.path.abspath(os.path.dirname(__file__))
     return os.path.join(base_path, relative_path)
 
+# --- 이모지 데이터 --- (카테고리별 일부 이모지)
+EMOJI_DATA: Dict[str, List[str]] = {
+    "Faces & People": [
+        "😀", "😃", "😄", "😁", "😆", "😅", "😂", "🤣", "😊", "😇",
+        "🙂", "🙃", "😉", "😌", "😍", "🥰", "😘", "😗", "😙", "😚",
+        "😋", "😛", "😜", "🤪", "🤨", "🧐", "🤓", "😎", "🤩", "🥳",
+        "😏", "😒", "😞", "😔", "😟", "😕", "🙁", "☹️", "😣", "😖",
+        "😫", "😩", "🥺", "😢", "😭", "😤", "😠", "😡", "🤬", "🤯",
+        "😳", "🥵", "🥶", "😱", "😨", "😰", "😥", "😓", "🤗", "🤔",
+        "🤭", "🤫", "🤥", "😶", "😐", "😑", "😬", "🙄", "😯", "😦",
+        "😧", "😮", "😲", "🥱", "😴", "🤤", "😪", "😵", "🤐", "🥴",
+        "🤢", "🤮", "🤧", "😷", "🤒", "🤕", "🤑", "🤠", "😈", "👿",
+        "👹", "👺", "🤡", "💩", "👻", "💀", "☠️", "👽", "👾", "🤖",
+        "👋", "🤚", "🖐️", "✋", "🖖", "👌", "🤏", "✌️", "🤞", "🤟",
+        "🤘", "🤙", "👈", "👉", "👆", "🖕", "👇", "☝️", "👍", "👎",
+        "✊", "👊", "🤛", "🤜", "👏", "🙌", "👐", "🤲", "🤝", "🙏",
+        "💪", "🦾", "🦵", "🦿", "🦶", "👣", "👀", "👁️", "🧠", "🦷",
+        "🦴", "👅", "👄", "❤️", "🧡", "💛", "💚", "💙", "💜", "🖤",
+    ],
+    "Animals & Nature": [
+        "🐶", "🐱", "🐭", "🐹", "🐰", "🦊", "🐻", "🐼", "🐨", "🐯",
+        "🦁", "🐮", "🐷", "🐽", "🐸", "🐵", "🙈", "🙉", "🙊", "🐒",
+        "🐔", "🐧", "🐦", "🐤", "🐣", "🐥", "🦆", "🦅", "🦉", "🦇",
+        "🐺", "🐗", "🐴", "🦄", "🐝", "🐛", "🦋", "🐌", "🐞", "🐜",
+        "🦗", "🕷️", "🕸️", "🦂", "🐢", "🐍", "🦎", "🦖", "🦕", "🐙",
+        "🦑", "🦐", "🦞", "🦀", "🐡", "🐠", "🐟", "🐬", "🐳", "🐋",
+        "🦈", "🐊", "🐅", "🐆", "🦓", "🦍", "🐘", "🦏", "🐪", "🐫",
+        "🦒", "🐃", "🐂", "🐄", "🐎", "🐖", "🐏", "🐑", "🐐", "🦌",
+        "🐕", "🐩", "🐈", "🐓", "🦃", "🕊️", "🐇", "🐁", "🐀", "🐿️",
+        "🌵", "🎄", "🌲", "🌳", "🌴", "🌱", "🌿", "☘️", "🍀", "🎍",
+        "🎋", "🍃", "🍂", "🍁", "🍄", "🌰", "🌼", "🌻", "🌺", "🌹",
+    ],
+    "Food & Drink": [
+        "🍏", "🍎", "🍐", "🍊", "🍋", "🍌", "🍉", "🍇", "🍓", "🍈",
+        "🍒", "🍑", "🥭", "🍍", "🥥", "🥝", "🍅", "🍆", "🥑", "🥦",
+        "🥬", "🥒", "🌶️", "🌽", "🥕", "🧄", "🧅", "🥔", "🍠", "🥐",
+        "🥯", "🍞", "🥖", "🥨", "🧀", "🥚", "🍳", "🧈", "🥞", "🧇",
+        "🥓", "🥩", "🍗", "🍖", "🦴", "🌭", "🍔", "🍟", "🍕", "🥪",
+        "🥙", "🌮", "🌯", "🥗", "🥘", "🥫", "🍝", "🍜", "🍲", "🍛",
+        "🍣", "🍱", "🥟", "🍤", "🍙", "🍚", "🍘", "🍥", "🍢", "🍡",
+        "🍧", "🍨", "🍦", "🥧", "🧁", "🍰", "🎂", "🍮", "🍭", "🍬",
+        "🍫", "🍿", "🍩", "🍪", "🌰", "🥜", "🍯", "🥛", "🍼", "☕",
+        "🍵", "🍶", "🍾", "🍷", "🍸", "🍹", "🍺", "🍻", "🥂", "🥃",
+    ],
+    "Activities": [
+        "⚽", "🏀", "🏈", "⚾", "🥎", "🎾", "🏐", "🏉", "🎱", "🏓",
+        "🏸", "🥅", "🏒", "🏑", "🏏", "🎿", "⛷️", "🏂", "🤺", "🤼",
+        "🤸", "🏋️", "⛹️", "🤾", "🧗", "🏌️", "🧘", "🧖", "🏄", "🏊",
+        "🤽", "🚣", "🏇", "🚴", "🚵", "🎪", "🎭", "🎨", "🎬", "🎤",
+        "🎧", "🎼", "🎹", "🥁", "🎷", "🎺", "🎸", "🎻", "🎮", "👾",
+        "🎯", "🎲", "🎰", "🎳", "🏆", "🏅", "🥇", "🥈", "🥉", "🎁",
+        "🎗️", "🎟️", "🎫", "🎃", "🎄", "🎆", "🎇", "✨", "🎈", "🎉",
+    ],
+    "Objects": [
+        "⌚", "📱", "📲", "💻", "⌨️", "🖥️", "🖨️", "🖱️", "🖲️", "🕹️",
+        "💽", "💾", "💿", "📀", "📼", "📷", "📸", "📹", "🎥", "🎞️",
+        "📞", "☎️", "📟", "📠", "📺", "📻", "🎙️", "⏱️", "⏲️", "⏰",
+        "🕰️", "⏳", "⌛", "💡", "🔦", "🏮", "💸", "💵", "💴", "💶",
+        "💷", "💰", "💳", "💎", "⚖️", "🔧", "🔨", "⚒️", "🛠️", "⛏️",
+        "🔩", "⚙️", "🧱", "⛓️", "🧲", "🔫", "💣", "🔪", "🗡️", "🛡️",
+        "🚬", "⚰️", "🏺", "🧭", "🗺️", "🔮", "🧿", "💈", "🔭", "🔬",
+        "🕳️", "💊", "💉", "🩸", "🧬", "🦠", "🧫", "🧪", "🌡️", "🧹",
+        "🧺", "🧻", "🚽", "🚰", "🚿", "🛁", "🛀", "🧼", "🧽", "🧴",
+        "🔑", "🗝️", "🛋️", "🛌", "🚪", "🪑",
+    ],
+    "Symbols": [
+        "❤️", "🧡", "💛", "💚", "💙", "💜", "🖤", "🤍", "🤎", "💔",
+        "❣️", "💕", "💞", "💓", "💗", "💖", "💘", "💝", "💟", "☮️",
+        "✝️", "☪️", "🕉️", "☸️", "✡️", "🔯", "🕎", "☯️", "☦️", "🛐",
+        "⛎", "♈", "♉", "♊", "♋", "♌", "♍", "♎", "♏", "♐",
+        "♑", "♒", "♓", "🆔", "⚛️", "🉑", "☢️", "☣️", "📴", "📳",
+        "🈶", "🈚", "🈸", "🈺", "🈷️", "✴️", "🆚", "💮", "🉐", "㊙️",
+        "㊗️", "🈴", "🈵", "🈹", "🈲", "🅰️", "🅱️", "🆎", "🆑", "🅾️",
+        "🆘", "❌", "⭕", "🛑", "⛔", "📛", "🚫", "💯", "💢", "♨️",
+        "🚷", "🚯", "🚳", "🚱", "🔞", "📵", "🚭", "❗️", "❕", "❓",
+        "❔", "‼️", "⁉️", "〽️", "⚠️", "🚸", "🔱", "⚜️", "🔰", "♻️",
+        "✅", "🈯", "💹", "❇️", "✳️", "❎", "🌐", "💠", "Ⓜ️", "🌀",
+        "💤", "🏧", "🚮", "🅿️", "♿", "🚻", "🚮", "🚰", "🚹", "🚺",
+        "⚧️", "🚼", "♾️", "♿", "📶", "🈁", "🈂️", "🛂", "🛃", "🛄",
+        "🛅", "🚾", "㊙️", "㊗️", "🈂️", "🈺", "🈯", "🕥", "🕦", "🕧",
+        "🕜", "🕝", "🕞", "🕟", "🕠", "🕡", "🕢", "🕣", "🕤", "🕥",
+        "🕦", "🕧", "🏳️", "🏴", "🏁", "🚩", "🎌", "💫", "⭐", "🌟",
+        "✨", "⚡", "☄️", "☀️", "🌤️", "⛅", "🌥️", "🌦️", "☁️", "🌨️",
+        "⛈️", "🌩️", "🌪️", "🌫️", "🌬️", "🌈", "☂️", "☔", "💧", "🌊",
+    ],
+}
+# -----------------
+
+# --- Emoji Picker Dialog --- 
+class EmojiPickerDialog(QDialog):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setWindowTitle("Select Emoji")
+        self.setModal(True)
+        self.selected_emoji: Optional[str] = None
+        
+        self.initUI()
+
+    def initUI(self):
+        layout = QVBoxLayout(self)
+        self.tabs = QTabWidget()
+        layout.addWidget(self.tabs)
+
+        # 각 카테고리별 탭 생성
+        for category, emojis in EMOJI_DATA.items():
+            tab_widget = QWidget()
+            tab_layout = QVBoxLayout(tab_widget) # 스크롤 영역을 위한 레이아웃
+            
+            scroll_area = QScrollArea() # 스크롤 가능한 영역
+            scroll_area.setWidgetResizable(True) # 스크롤 영역 내부 위젯 크기 자동 조절
+            scroll_content = QWidget() # 스크롤될 내용 위젯
+            grid_layout = QGridLayout(scroll_content) # 이모지 버튼 그리드
+            grid_layout.setSpacing(5) # 버튼 간격
+            scroll_area.setWidget(scroll_content)
+            
+            tab_layout.addWidget(scroll_area) # 탭에 스크롤 영역 추가
+            self.tabs.addTab(tab_widget, category)
+
+            # 그리드에 이모지 버튼 추가
+            row, col = 0, 0
+            cols_per_row = 10 # 한 줄에 표시할 이모지 수
+            for emoji in emojis:
+                button = QPushButton(emoji)
+                button.setFixedSize(QSize(45, 45)) # 크기 유지 (45x45)
+                button.setStyleSheet("""
+                    QPushButton {
+                        font-size: 14pt; /* 폰트 크기 추가 감소 (15pt -> 14pt) */
+                        border: 1px solid #e0e0e0;
+                        border-radius: 5px;
+                        background-color: white;
+                        padding: 0px; /* 내부 여백 제거 */
+                    }
+                    QPushButton:hover {
+                        background-color: #f0f0f0;
+                    }
+                    QPushButton:pressed {
+                        background-color: #d0d0d0;
+                    }
+                """)
+                button.clicked.connect(lambda _, e=emoji: self.emoji_selected(e))
+                grid_layout.addWidget(button, row, col)
+                
+                col += 1
+                if col >= cols_per_row:
+                    col = 0
+                    row += 1
+            
+            # 마지막 행이 꽉 차지 않았을 경우 공간 채우기 방지
+            grid_layout.setRowStretch(row + 1, 1)
+            grid_layout.setColumnStretch(cols_per_row, 1)
+
+        # 다이얼로그 크기 조정
+        self.resize(500, 400) # 적절한 크기로 설정
+
+    def emoji_selected(self, emoji: str):
+        """이모지 버튼 클릭 시 호출"""
+        self.selected_emoji = emoji
+        logging.debug(f"Emoji selected in dialog: {emoji}")
+        self.accept() # 다이얼로그 닫고 Accepted 시그널 발생
+
+    def get_selected_emoji(self) -> Optional[str]:
+        """선택된 이모지를 반환"""
+        return self.selected_emoji
+# ------------------------
+
 class AlarmApp(QWidget):
     # 알람 목록 변경 시 메인 로직에 알리기 위한 시그널
     alarms_updated = pyqtSignal(list)
@@ -53,23 +221,47 @@ class AlarmApp(QWidget):
         self.update_alarm_listwidget()
 
     def initUI(self):
-        self.setWindowTitle("") # 띄어쓰기 제거
-        self.resize(600, 700) # 너비와 높이 증가 (높이 700으로 수정)
-        self.setMinimumSize(600, 700) # 최소 너비와 높이 설정 (높이 700으로 수정)
-        self.center() # 화면 중앙으로 이동시키는 메서드 호출
-        
-        # --- 창 아이콘 설정 --- 
-        # app_icon = QIcon("assets/icon.svg") # 기존 SVG 사용 코드
-        app_icon_path = resource_path("assets/icon.ico") # .ico 파일 및 절대 경로 사용
+        self.setWindowTitle("AlarmReminder PAAK") # 명확한 제목 설정
+        self.resize(600, 700)
+        self.setMinimumSize(600, 700)
+        self.center()
+
+        app_icon_path = resource_path("assets/icon.ico")
         app_icon = QIcon(app_icon_path)
         if not app_icon.isNull():
              self.setWindowIcon(app_icon)
-             # print("애플리케이션 아이콘 설정 완료: ", app_icon_path)
         else:
-             # print(f"경고: {app_icon_path} 파일을 찾을 수 없거나 유효하지 않습니다.")
-             pass # 최종본에서는 출력 제거
-        # ---------------------
+             pass
 
+        # --- 메인 레이아웃 ---
+        main_layout = QVBoxLayout(self) # self를 부모로 설정하여 바로 적용
+        main_layout.setContentsMargins(20, 20, 20, 20) # 전체 여백 증가
+        main_layout.setSpacing(15) # 위젯 간 간격 조정
+
+        # --- 제목 및 이모지 버튼 레이아웃 ---
+        title_layout = QHBoxLayout()
+        title_layout.setSpacing(10) # 제목과 버튼 사이 간격
+
+        self.title_label = QLabel("⏰ AlarmReminder PAAK") # 제목 레이블 (이모지 기본 추가)
+        self.title_label.setObjectName("windowTitleLabel") # 스타일링 위한 ID
+        self.title_label.setStyleSheet("""
+            QLabel#windowTitleLabel {
+                font-size: 16pt;
+                font-weight: 600;
+                color: #212529; /* 더 진한 제목 색상 */
+                padding-bottom: 5px; /* 제목 아래 약간의 여백 */
+            }
+        """)
+        title_layout.addWidget(self.title_label)
+
+        # 제목 레이블이 왼쪽 공간을 최대한 차지하도록 설정
+        title_layout.addStretch(1) 
+
+        main_layout.addLayout(title_layout) # 메인 레이아웃에 제목 레이아웃 추가
+        # ----------------------------------
+
+        # --- 스타일시트 ---
+        # initUI 상단 또는 여기에 전체 스타일시트 배치 (기존 코드 위치 참고)
         self.setStyleSheet("""
             /* === 기본 위젯 스타일 === */
             QWidget { 
@@ -276,9 +468,6 @@ class AlarmApp(QWidget):
             }
         """)
 
-        main_layout = QVBoxLayout(self)
-        main_layout.setContentsMargins(15, 15, 15, 15) # 전체 여백
-
         # --- 알람 추가/수정 섹션 --- 
         form_frame = QFrame(self)
         form_frame.setObjectName("formFrame")
@@ -294,8 +483,35 @@ class AlarmApp(QWidget):
         form_layout.setHorizontalSpacing(10)
         form_layout.setVerticalSpacing(8)
 
+        # --- Title 입력 행 수정 --- 
+        title_input_layout = QHBoxLayout() # 제목 입력 필드와 이모지 버튼을 담을 레이아웃
+        title_input_layout.setContentsMargins(0, 0, 0, 0) # 내부 여백 제거
+        title_input_layout.setSpacing(5) # 입력 필드와 버튼 사이 간격
+        
         self.title_edit = QLineEdit()
-        form_layout.addRow("Title:", self.title_edit)
+        # title_edit이 수평 공간을 최대한 차지하도록 설정
+        self.title_edit.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
+        
+        title_input_layout.addWidget(self.title_edit) # 레이아웃에 입력 필드 추가
+
+        # --- 새로운 이모지 버튼 추가 --- 
+        self.title_emoji_button = QPushButton("😀") # 이모지 버튼 생성
+        self.title_emoji_button.setToolTip("Insert Emoji")
+        self.title_emoji_button.setFixedSize(QSize(30, 30)) # 작게 크기 고정 (QLineEdit 높이에 맞게 조절 가능)
+        self.title_emoji_button.setStyleSheet("""
+            QPushButton {
+                font-size: 12pt; /* 버튼 크기에 맞는 폰트 크기 */
+                padding: 0px; /* 내부 여백 최소화 */
+                border-radius: 5px; /* 약간 둥글게 */
+            }
+        """)
+        self.title_emoji_button.clicked.connect(self.select_emoji) # 시그널 연결
+        title_input_layout.addWidget(self.title_emoji_button) # 레이아웃에 버튼 추가
+        # ------------------------------
+
+        # QFormLayout에 QHBoxLayout 추가
+        form_layout.addRow("Title:", title_input_layout)
+        # -------------------------
 
         # 시간 선택
         time_layout = QHBoxLayout()
@@ -416,7 +632,7 @@ class AlarmApp(QWidget):
         # --- 피드백 버튼 추가 ---
         self.feedback_button = QPushButton("💬") # 이모지 사용
         self.feedback_button.setObjectName("feedbackButton") # 객체 이름 설정
-        self.feedback_button.setToolTip("Send Feedback") # 툴팁 설정
+        self.feedback_button.setToolTip("Send Feedback") # 툴큐 설정
         # 버튼 크기 고정 (선택 사항, 너무 커지지 않도록)
         # self.feedback_button.setFixedSize(QSize(40, 40)) # 예시 크기 -> 주석 처리하여 높이 맞춤
         # self.feedback_button.setStyleSheet("font-size: 14pt;") # 이모지 크기 조절
@@ -705,6 +921,23 @@ class AlarmApp(QWidget):
             logging.error(f"피드백 링크 열기 실패: {feedback_url.toString()}")
             # 사용자에게 링크 열기 실패 메시지 표시 (선택 사항)
             QMessageBox.warning(self, "Link Error", f"Could not open the feedback page:\n{feedback_url.toString()}\nPlease open it manually in your browser.")
+
+    def select_emoji(self):
+        """이모지 선택 버튼 클릭 시 커스텀 다이얼로그를 열고, 선택된 이모지를 제목 입력란에 추가합니다."""
+        dialog = EmojiPickerDialog(self)
+        result = dialog.exec_() # 모달 다이얼로그 실행
+
+        if result == QDialog.Accepted:
+            selected_emoji = dialog.get_selected_emoji()
+            if selected_emoji:
+                logging.debug(f"선택된 이모지: {selected_emoji}. 제목 입력란에 추가합니다.")
+                # --- 제목 입력란의 현재 커서 위치에 이모지 삽입 --- 
+                self.title_edit.insert(selected_emoji)
+                # -------------------------------------------------
+            else:
+                 logging.debug("다이얼로그는 Accepted지만 선택된 이모지가 없음.")
+        else:
+            logging.debug("이모지 선택 다이얼로그 취소됨.")
 
 # 테스트용 코드 (ui.py 직접 실행 시)
 if __name__ == '__main__':

@@ -117,7 +117,6 @@ def handle_exception(exc_type, exc_value, exc_traceback):
 
 sys.excepthook = handle_exception
 # -------------------------
-
 # --- AppUserModelID 설정 (Windows 작업 표시줄 아이콘용) --- 
 if platform.system() == "Windows":
     myappid = u'MyCompanyName.MyProductName.AppAlarmReminderPAAK.1' # 고유 ID 문자열

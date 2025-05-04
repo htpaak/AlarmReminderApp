@@ -52,7 +52,7 @@ pyinstaller --noconsole ^
   --exclude-module=pytest ^
   --exclude-module=_pytest ^
   --exclude-module=unittest ^
-  --name="MyApplication" ^
+  --name="AlarmReminderPAAK" ^
   main.py
 
 echo.
