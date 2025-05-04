@@ -426,7 +426,7 @@ class AlarmApp(QWidget):
         # --- 메인 레이아웃 ---
         main_layout = QVBoxLayout(self) # self를 부모로 설정하여 바로 적용
         main_layout.setContentsMargins(20, 20, 20, 20) # 전체 여백 증가
-        main_layout.setSpacing(15) # 위젯 간 간격 조정
+        main_layout.setSpacing(5) # 위젯 간 간격 줄이기 (15 -> 5)
 
         # --- 제목 및 이모지 버튼 레이아웃 ---
         title_layout = QHBoxLayout()
@@ -546,11 +546,15 @@ class AlarmApp(QWidget):
 
             /* === 프레임 스타일 === */
             QFrame#formFrame, QFrame#listFrame { 
-                border: 1px solid #e9ecef; /* 매우 연한 테두리 */
-                border-radius: 8px; /* 프레임 모서리 둥글게 */
-                padding: 15px; /* 프레임 내부 여백 증가 */
-                margin-bottom: 15px; /* 프레임 간 간격 증가 */
-                background-color: #ffffff; /* 프레임 배경 흰색으로 구분 */
+                border: 1px solid #e9ecef; 
+                border-radius: 8px; 
+                padding: 15px; 
+                /* margin-bottom: 15px; */ /* formFrame 아래쪽 마진 제거 */
+                background-color: #ffffff; 
+            }
+            /* listFrame에는 아래쪽 마진 유지 (창 하단과의 간격) */
+            QFrame#listFrame {
+                 margin-bottom: 5px; /* 약간의 간격만 남김 */
             }
             QLabel#frameTitle { 
                 font-weight: 600; /* 제목 굵기 증가 */
@@ -657,6 +661,7 @@ class AlarmApp(QWidget):
                 /* 필요시 개별 스타일 */
             }
         """)
+        # ----------------------
 
         # --- 알람 추가/수정 섹션 --- 
         form_frame = QFrame(self)
@@ -834,10 +839,10 @@ class AlarmApp(QWidget):
 
         main_layout.addWidget(list_frame)
 
-        # --- 스트레치 비율 설정 --- 
-        main_layout.setStretchFactor(form_frame, 1) # Add Alarm 섹션 비율
-        main_layout.setStretchFactor(list_frame, 2) # Registered Alarms 섹션 비율 (더 크게)
-        # ---------------------------
+        # --- 스트레치 비율 설정 변경 --- 
+        main_layout.setStretchFactor(form_frame, 0) # Add Alarm 섹션 비율 최소화
+        main_layout.setStretchFactor(list_frame, 1) # Registered Alarms 섹션이 남은 공간 차지 (1 이상이면 됨)
+        # -------------------------------
 
         self.setLayout(main_layout)
         self.setWindowTitle('AlarmReminderPAAK')
