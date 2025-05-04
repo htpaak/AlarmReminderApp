@@ -48,11 +48,12 @@ def add_to_startup(app_name: str, executable_path: str):
     try:
         # 레지스트리 키 열기 (없으면 생성 시도 안 함 - 기본 키는 존재해야 함)
         key = winreg.OpenKey(winreg.HKEY_CURRENT_USER, registry_key, 0, winreg.KEY_WRITE)
-        # 경로에 공백이 있을 수 있으므로 따옴표로 감싸기
+        # 경로에 공백이 있을 수 있으므로 따옴표로 감싸고, 뒤에 실행 인자 추가
         quoted_path = f'"{executable_path}"'
-        winreg.SetValueEx(key, app_name, 0, winreg.REG_SZ, quoted_path)
+        startup_command = f'{quoted_path} --minimized' # 실행 인자 추가
+        winreg.SetValueEx(key, app_name, 0, winreg.REG_SZ, startup_command)
         winreg.CloseKey(key)
-        logging.info(f"'{app_name}'을(를) 시작 프로그램에 추가했습니다: {quoted_path}")
+        logging.info(f"'{app_name}'을(를) 시작 프로그램에 추가했습니다: {startup_command}")
     except OSError as e:
         logging.error(f"시작 프로그램 추가 중 오류 발생 (키: {registry_key}, 앱: {app_name}): {e}")
     except Exception as e:
@@ -348,7 +349,14 @@ ui_app.start_on_boot_changed.connect(handle_start_on_boot_change) # 시그널 �
 # -------------------------
 
 logging.debug("Showing main window...")
-ui_app.show()
+# --- 시작 인자에 따라 창 표시 여부 결정 ---
+if "--minimized" not in sys.argv:
+    logging.info("일반 실행 모드: 메인 창을 표시합니다.")
+    ui_app.show()
+else:
+    logging.info("최소화 모드(--minimized)로 시작: 메인 창을 숨깁니다.")
+    # ui_app.show() 호출 안 함 (트레이 아이콘은 이미 표시됨)
+# ---------------------------------------
 
 # --- 앱 종료 시 정리 작업 연결 --- 
 app.aboutToQuit.connect(stop_scheduler)
