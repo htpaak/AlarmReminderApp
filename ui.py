@@ -10,7 +10,7 @@ from PyQt5.QtWidgets import (
     QInputDialog,
     QDialog, QTabWidget, QScrollArea, QGridLayout,
     QAction,
-    QLayout, QStyle # QLayout, QStyle 임포트 추가
+    QLayout, QStyle, QCheckBox # QCheckBox 임포트 추가
 )
 from PyQt5.QtCore import Qt, pyqtSignal, QSize, QUrl, QTime, QRect, QPoint # QRect, QPoint 임포트 추가
 from PyQt5.QtGui import QColor, QFont, QIcon, QDesktopServices
@@ -397,18 +397,18 @@ class AlarmApp(QWidget):
     # 알람 목록 변경 시 메인 로직에 알리기 위한 시그널
     alarms_updated = pyqtSignal(list)
     alarm_deleted = pyqtSignal(str) # 삭제된 알람 ID 전달
+    start_on_boot_changed = pyqtSignal(bool) # 시작 프로그램 설정 변경 시그널 추가
 
-    def __init__(self, alarms: List[Alarm], tray_icon: QSystemTrayIcon, parent=None):
+    def __init__(self, alarms: List[Alarm], tray_icon: QSystemTrayIcon, initial_start_on_boot_state: bool, parent=None):
         super().__init__(parent)
         self.alarms = alarms
-        self.selected_alarm: Optional[Alarm] = None
-        self.edit_mode = False
-        self.day_buttons: List[QPushButton] = [] # 요일 버튼 리스트
-        self.selected_sound_path: Optional[str] = None # UI 임시 저장용 경로 다시 추가
-        self.tray_icon = tray_icon # 트레이 아이콘 저장
+        self.current_editing_alarm_id: Optional[str] = None
+        self.sound_player = QSoundEffect(self)
+        self.sound_player.setLoopCount(QSoundEffect.Infinite) # 반복 재생 설정
+        self.tray_icon = tray_icon # 트레이 아이콘 참조 저장
+        self._initial_start_on_boot_state = initial_start_on_boot_state # 초기 상태 저장
 
         self.initUI()
-        self.update_alarm_listwidget()
 
     def initUI(self):
         self.setWindowTitle("AlarmReminder PAAK") # 명확한 제목 설정
@@ -805,6 +805,12 @@ class AlarmApp(QWidget):
         self.alarm_listwidget.itemDoubleClicked.connect(self.toggle_alarm_enabled)
         list_layout_wrapper.addWidget(self.alarm_listwidget)
 
+        # --- 시작 프로그램 체크박스 생성 (레이아웃 추가 전에 생성) ---
+        self.start_on_boot_checkbox = QCheckBox("Start on boot")
+        self.start_on_boot_checkbox.setChecked(self._initial_start_on_boot_state) # 초기 상태 설정
+        self.start_on_boot_checkbox.stateChanged.connect(self._emit_start_on_boot_signal) # 시그널 연결
+        # -------------------------------------------------------
+
         # 목록 조작 버튼
         list_button_layout = QHBoxLayout()
         self.edit_button = QPushButton("Edit ✏️")
@@ -823,6 +829,10 @@ class AlarmApp(QWidget):
         list_button_layout.addWidget(self.delete_button)
         list_button_layout.addWidget(self.toggle_button)
         list_button_layout.addStretch(1) # 기존 버튼과 새 버튼 사이에 공간 추가
+
+        # --- 시작 프로그램 체크박스를 목록 버튼 레이아웃에 추가 --- 
+        list_button_layout.addWidget(self.start_on_boot_checkbox) 
+        # -------------------------------------------------------
 
         # --- 피드백 버튼 추가 ---
         self.feedback_button = QPushButton("💬") # 이모지 사용
@@ -844,10 +854,35 @@ class AlarmApp(QWidget):
         main_layout.setStretchFactor(list_frame, 1) # Registered Alarms 섹션이 남은 공간 차지 (1 이상이면 됨)
         # -------------------------------
 
-        self.setLayout(main_layout)
+        # --- 시작 프로그램 체크박스 (코드 블록 위로 이동) ---
+        # self.start_on_boot_checkbox = QCheckBox("Start on boot")
+        # self.start_on_boot_checkbox.setChecked(self._initial_start_on_boot_state) # 초기 상태 설정
+        # self.start_on_boot_checkbox.stateChanged.connect(self._emit_start_on_boot_signal) # 시그널 연결
+        # start_on_boot_layout = QHBoxLayout() # 별도 레이아웃 제거
+        # start_on_boot_layout.setContentsMargins(0, 5, 0, 0) # 별도 레이아웃 제거
+        # start_on_boot_layout.addStretch() # 별도 레이아웃 제거
+        # start_on_boot_layout.addWidget(self.start_on_boot_checkbox) # 아래 list_button_layout으로 이동
+        # start_on_boot_layout.addStretch() # 별도 레이아웃 제거
+
+        # 메인 레이아웃에 위젯 및 레이아웃 추가 (순서 중요)
+        main_layout.addLayout(title_layout) # 1. 제목
+        main_layout.addWidget(form_frame) # 2. 알람 추가/수정 폼
+        # main_layout.addLayout(start_on_boot_layout) # 별도 레이아웃 추가 제거
+        main_layout.addWidget(list_frame) # 3. 등록된 알람 목록 (기존 4번에서 당겨짐)
+
+        # --- 스트레치 비율 설정 (위젯 추가 후 설정) ---
+        main_layout.setStretchFactor(form_frame, 0) # Add Alarm 섹션 비율 최소화
+        main_layout.setStretchFactor(list_frame, 1) # Registered Alarms 섹션이 남은 공간 차지
+        # -------------------------------
+
+        self.setLayout(main_layout) # 최종 레이아웃 설정
+        # --- 기존 코드에서 중복/불필요 부분 제거 ---
+        # self.setLayout(form_and_list_layout) # -> main_layout 사용으로 변경됨
+        # --- 기존 코드 끝 ---
+
         self.setWindowTitle('AlarmReminderPAAK')
-        # self.setWindowIcon(QIcon('assets/icon.svg')) # 윈도우 아이콘 설정 (중복 제거: initUI 시작 부분에서 .ico로 이미 설정함)
-        # self.setGeometry(300, 300, 600, 400) # 창 크기 및 위치 설정 (center() 호출 후 실행되어 중앙 정렬 무시함)
+        # self.setWindowIcon(QIcon('assets/icon.svg')) # .ico 사용
+        # self.setGeometry(300, 300, 600, 400) # center() 사용
 
     def center(self):
         """창을 화면 중앙으로 이동시킵니다."""
@@ -1134,6 +1169,14 @@ class AlarmApp(QWidget):
         else:
             logging.debug("이모지 선택 다이얼로그 취소됨.")
 
+    # --- 시작 프로그램 체크박스 시그널 처리 ---
+    def _emit_start_on_boot_signal(self, state):
+        """체크박스 상태 변경 시 start_on_boot_changed 시그널 발생"""
+        is_enabled = (state == Qt.Checked)
+        logging.debug(f"'Start on boot' checkbox state changed: {is_enabled}")
+        self.start_on_boot_changed.emit(is_enabled)
+    # --------------------------------------
+
 # 테스트용 코드 (ui.py 직접 실행 시)
 if __name__ == '__main__':
     app = QApplication(sys.argv)
@@ -1144,7 +1187,7 @@ if __name__ == '__main__':
         Alarm(title="Meeting", time_str="14:00", selected_days={2}, enabled=False) # 수요일, 비활성
     ]
     tray_icon = QSystemTrayIcon()
-    ex = AlarmApp(test_alarms, tray_icon)
+    ex = AlarmApp(test_alarms, tray_icon, True)
     
     # 시그널 연결 (테스트용)
     def handle_update(alarms_list):
