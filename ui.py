@@ -407,8 +407,12 @@ class AlarmApp(QWidget):
         self.sound_player.setLoopCount(QSoundEffect.Infinite) # 반복 재생 설정
         self.tray_icon = tray_icon # 트레이 아이콘 참조 저장
         self._initial_start_on_boot_state = initial_start_on_boot_state # 초기 상태 저장
+        self.selected_alarm: Optional[Alarm] = None # 선택된 알람 저장 변수 추가
+        self.edit_mode = False # 편집 모드 플래그 추가
+        self.selected_sound_path: Optional[str] = None # UI 임시 사운드 경로 추가
 
         self.initUI()
+        self.update_alarm_listwidget() # initUI 호출 후 리스트 위젯 업데이트
 
     def initUI(self):
         self.setWindowTitle("AlarmReminder PAAK") # 명확한 제목 설정

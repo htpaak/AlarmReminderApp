@@ -44,17 +44,26 @@ def _ensure_dir_exists():
 
 def load_alarms() -> List[Alarm]:
     """저장된 알람 목록을 파일에서 불러옵니다."""
-    logging.info(f"알람 로딩 경로: {ALARMS_FILE}")
+    logging.info(f"알람 로딩 시도 경로: {ALARMS_FILE}") # 로그 메시지 명확화
     if not os.path.exists(ALARMS_FILE):
         logging.warning(f"알람 파일({ALARMS_FILE})을 찾을 수 없습니다. 빈 목록을 반환합니다.")
         return []
     try:
-        # 경로 확인 로그 추가
-        print(f"알람 로딩 경로: {ALARMS_FILE}")
+        # 파일 내용 읽기 및 로깅
         with open(ALARMS_FILE, 'r', encoding='utf-8') as f:
-            alarms_data = json.load(f)
+            raw_content = f.read()
+            logging.debug(f"읽어온 파일 내용 (raw): {raw_content}") # raw 내용 로그 추가
+            # 파일이 비어있는 경우 처리
+            if not raw_content.strip():
+                logging.warning(f"알람 파일({ALARMS_FILE})이 비어 있습니다. 빈 목록을 반환합니다.")
+                return []
+            alarms_data = json.loads(raw_content) # raw_content 사용
+            logging.debug(f"JSON 파싱 완료 데이터: {alarms_data}") # 파싱된 데이터 로그 추가
+            
         alarms = []
-        for data in alarms_data:
+        logging.debug("Alarm 객체 변환 시작...") # 변환 시작 로그
+        for i, data in enumerate(alarms_data):
+            logging.debug(f"  변환 시도 데이터 [{i}]: {data}") # 각 데이터 항목 로그
             # JSON에서 읽은 데이터를 Alarm 객체로 변환
             # 'repeat' 대신 'selected_days' 처리
             # 저장된 리스트를 set으로 변환
@@ -79,15 +88,22 @@ def load_alarms() -> List[Alarm]:
                 enabled=data.get('enabled', True),
                 sound_path=data.get('sound_path', None) # sound_path 로드 추가
             )
+            logging.debug(f"  -> 변환된 Alarm 객체 [{i}]: {alarm}") # 변환된 객체 로그
             # id가 없는 경우 새로 생성 (이전 버전 데이터 처리)
             if not alarm.id:
                  alarm.id = str(uuid.uuid4()) # uuid 임포트 필요 -> alarm.py에서 처리
                  logging.warning(f"알람 데이터에 ID가 없어 새로 생성: {alarm.title} -> {alarm.id}")
             alarms.append(alarm)
-        logging.info(f"{len(alarms)}개의 알람 로드 완료.")
+        logging.info(f"최종 변환된 알람 개수: {len(alarms)}") # 최종 개수 로그 명확화
         return alarms
-    except (json.JSONDecodeError, KeyError, ValueError, TypeError) as e:
-        print(f"알람 로딩 오류 ({ALARMS_FILE}): {e}. 빈 목록으로 시작합니다.")
+    except json.JSONDecodeError as e:
+        logging.error(f"알람 파일({ALARMS_FILE}) JSON 파싱 오류: {e}. 빈 목록을 반환합니다.")
+        return []
+    except (KeyError, ValueError, TypeError) as e:
+        logging.error(f"알람 데이터 처리 중 오류 ({ALARMS_FILE}): {e}. 빈 목록을 반환합니다.", exc_info=True) # 상세 오류 로깅 추가
+        return []
+    except Exception as e:
+        logging.error(f"알람 로딩 중 예기치 않은 오류 발생 ({ALARMS_FILE}): {e}. 빈 목록을 반환합니다.", exc_info=True)
         return []
 
 def save_alarms(alarms: List[Alarm]):
