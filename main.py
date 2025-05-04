@@ -83,7 +83,7 @@ def remove_from_startup(app_name: str):
 # from log_setup import setup_logging
 
 from alarm import Alarm
-from storage import load_alarms, save_alarms, APP_DATA_DIR, _ensure_dir_exists # APP_DATA_DIR, _ensure_dir_exists 임포트 추가
+from storage import load_alarms, save_alarms # APP_DATA_DIR, _ensure_dir_exists 임포트 제거
 # from ui import AlarmApp # PyQt5 버전으로 변경
 from ui import AlarmApp
 from scheduler import start_scheduler, stop_scheduler, update_scheduled_alarm, remove_scheduled_alarm, _scheduler_thread # scheduler_thread 임포트 추가
@@ -129,34 +129,34 @@ if not is_packaged:
 
 else:
     # 패키지된 상태로 실행 중일 때
-    try:
-        # 로그 디렉토리 생성 확인 (storage 모듈 함수 사용)
-        _ensure_dir_exists()
-        
-        # 로그 파일 경로를 AppData 내로 설정
-        log_file_path = os.path.join(APP_DATA_DIR, "packaged_debug.log")
-        
-        logging.basicConfig(
-            level=logging.DEBUG, # 디버깅을 위해 DEBUG 레벨 유지
-            format='%(asctime)s [%(levelname)s] %(message)s',
-            filename=log_file_path,
-            filemode='w', # 실행 시마다 새로 쓰기
-            encoding='utf-8',
-            force=True
-        )
-        logging.info("--- Logging Setup Complete (Running Packaged - Logging to AppData) ---")
-        
-    except Exception as e:
-        # 파일 로깅 설정 실패 시 (예: 쓰기 권한 없음 등)
-        # 이 경우 로그를 볼 수 없지만, 앱 실행은 계속 시도
-        print(f"Error setting up file logging in packaged mode: {e}", file=sys.stderr) # 콘솔에라도 출력 시도
-        # 로깅 완전 비활성화 대신 경고 레벨 이상만 콘솔 출력 시도 (선택 사항)
-        logging.basicConfig(level=logging.WARNING, format='%(asctime)s [%(levelname)s] %(message)s')
-        logging.error(f"--- Failed to setup file logging for packaged app: {e} ---")
+    # try:
+    #     # 로그 디렉토리 생성 확인 (storage 모듈 함수 사용)
+    #     _ensure_dir_exists()
+    #     
+    #     # 로그 파일 경로를 AppData 내로 설정
+    #     log_file_path = os.path.join(APP_DATA_DIR, "packaged_debug.log")
+    #     
+    #     logging.basicConfig(
+    #         level=logging.DEBUG, # 디버깅을 위해 DEBUG 레벨 유지
+    #         format='%(asctime)s [%(levelname)s] %(message)s',
+    #         filename=log_file_path,
+    #         filemode='w', # 실행 시마다 새로 쓰기
+    #         encoding='utf-8',
+    #         force=True
+    #     )
+    #     logging.info("--- Logging Setup Complete (Running Packaged - Logging to AppData) ---")
+    #     
+    # except Exception as e:
+    #     # 파일 로깅 설정 실패 시 (예: 쓰기 권한 없음 등)
+    #     # 이 경우 로그를 볼 수 없지만, 앱 실행은 계속 시도
+    #     print(f"Error setting up file logging in packaged mode: {e}", file=sys.stderr) # 콘솔에라도 출력 시도
+    #     # 로깅 완전 비활성화 대신 경고 레벨 이상만 콘솔 출력 시도 (선택 사항)
+    #     logging.basicConfig(level=logging.WARNING, format='%(asctime)s [%(levelname)s] %(message)s')
+    #     logging.error(f"--- Failed to setup file logging for packaged app: {e} ---")
         # logging.disable(logging.CRITICAL) # 로깅 완전 비활성화 제거
     
-    # 최종 배포 시 로깅 비활성화 복원 (제거됨)
-    # logging.disable(logging.CRITICAL)
+    # 최종 배포 시 로깅 비활성화 복원
+    logging.disable(logging.CRITICAL)
 
 # --- 애플리케이션 정보 ---
 COMPANY_NAME = "MyCompanyName"
